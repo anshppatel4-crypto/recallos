@@ -1,0 +1,25 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Product>RecallOS</Product>
+    <Company>RecallOS</Company>
+    <Version>1.0.0</Version>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Package versions shared across every project in the solution. -->
+    <SqliteVersion>8.0.11</SqliteVersion>
+    <DrawingVersion>8.0.11</DrawingVersion>
+    <ExtensionsVersion>8.0.1</ExtensionsVersion>
+    <MvvmVersion>8.4.0</MvvmVersion>
+    <TesseractVersion>5.2.0</TesseractVersion>
+  </PropertyGroup>
+
+</Project>

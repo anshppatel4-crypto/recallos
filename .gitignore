@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Local runtime data — a RecallOS store must never be committed
+tessdata/
+*.traineddata

@@ -1,0 +1,46 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # RecallOS is a Windows desktop application: it P/Invokes user32 and gdi32 and targets
+    # net8.0-windows, so there is no meaningful way to build or test it on another OS.
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore RecallOS.slnx
+
+      - name: Build
+        run: dotnet build RecallOS.slnx -c Release --no-restore
+
+      # The capture tests no-op without an interactive desktop and the OCR tests no-op
+      # without an installed language pack, so the suite is meaningful on a runner while
+      # still exercising storage, search, retention and the whole pipeline.
+      - name: Test
+        run: dotnet test tests/RecallOS.Core.Tests/RecallOS.Core.Tests.csproj -c Release --no-build --verbosity normal
+
+      - name: Publish
+        run: >
+          dotnet publish src/RecallOS.App/RecallOS.App.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:DebugType=none
+          -o artifacts/RecallOS-win-x64
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: RecallOS-win-x64
+          path: artifacts/RecallOS-win-x64

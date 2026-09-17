@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RecallOS.App/RecallOS.App.csproj" />
+    <Project Path="src/RecallOS.Core/RecallOS.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RecallOS.Core.Tests/RecallOS.Core.Tests.csproj" />
+  </Folder>
+</Solution>
