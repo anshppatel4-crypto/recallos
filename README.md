@@ -9,7 +9,7 @@ entirely on your own machine.
 [![build](https://github.com/anshppatel4-crypto/recallos/actions/workflows/ci.yml/badge.svg)](https://github.com/anshppatel4-crypto/recallos/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-6366f1)](LICENSE)
 [![platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-6366f1)](#download)
-[![website](https://img.shields.io/badge/website-recallos-a855f7)](https://anshppatel4-crypto.github.io/recallos/)
+[![website](https://img.shields.io/badge/website-recallos-a855f7)](https://anshppatel4-crypto.github.io/recallos/docs/)
 [![local only](https://img.shields.io/badge/data-100%25%20local-34d399)](#privacy)
 
 <img src="docs/main.png" width="880" alt="RecallOS main window" />
@@ -35,7 +35,7 @@ shows, placed on a timeline, and reachable by meaning as well as by wording.
 
 ## Download
 
-**[Download the latest release →](https://github.com/anshppatel4-crypto/recallos/releases/latest)**  ·  **[Website →](https://anshppatel4-crypto.github.io/recallos/)**
+**[Download the latest release →](https://github.com/anshppatel4-crypto/recallos/releases/latest)**  ·  **[Website →](https://anshppatel4-crypto.github.io/recallos/docs/)**
 
 Unzip it anywhere and run `RecallOS.exe`. Nothing to install — the build is self-contained,
 so you do **not** need the .NET runtime.
