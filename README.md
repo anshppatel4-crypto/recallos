@@ -7,9 +7,10 @@ Records what is on your screen, reads the text on it, and makes all of it search
 entirely on your own machine.
 
 [![build](https://github.com/anshppatel4-crypto/recallos/actions/workflows/ci.yml/badge.svg)](https://github.com/anshppatel4-crypto/recallos/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-MIT-6366f1)](LICENSE)
+[![release](https://img.shields.io/badge/release-v1.0.0-6366f1)](https://github.com/anshppatel4-crypto/recallos/releases/latest)
 [![platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-6366f1)](#download)
 [![website](https://img.shields.io/badge/website-recallos-a855f7)](https://anshppatel4-crypto.github.io/recallos/docs/)
+[![proprietary](https://img.shields.io/badge/license-proprietary-636b7c)](LICENSE)
 [![local only](https://img.shields.io/badge/data-100%25%20local-34d399)](#privacy)
 
 <img src="docs/main.png" width="880" alt="RecallOS main window" />
@@ -30,6 +31,8 @@ shows, placed on a timeline, and reachable by meaning as well as by wording.
 | **Search** | FTS5/BM25 keyword search, cosine similarity over chunk embeddings, or a blend of both. |
 | **Replay** | The original screenshot beside its extracted text, with step-forward/back through time. |
 | **Understand** | Per-frame activity labels and an activity histogram you can scrub and click. |
+
+> **v1.0 is out.** More is coming — see the [roadmap](https://anshppatel4-crypto.github.io/recallos/docs/#roadmap).
 
 ---
 
@@ -193,23 +196,9 @@ search silently never works.
 
 ---
 
-## Building from source
+## Tests
 
-Requires the .NET 8 SDK or newer.
-
-```bash
-git clone https://github.com/anshppatel4-crypto/recallos.git
-cd recallos
-
-dotnet test                                  # 135 tests
-dotnet run --project src/RecallOS.App        # run it
-
-pwsh build/publish.ps1 -Version 1.0.0        # produce the release zip
-```
-
-### Tests
-
-135 tests, run against the real SQLite schema, the real FTS5 index, real files on disk, the
+135 tests run against the real SQLite schema, the real FTS5 index, real files on disk, the
 real Win32 capture path and the real Tesseract engine rather than mocks — those layers are
 almost entirely SQL and P/Invoke, so mocking them would test nothing that could break.
 
@@ -221,34 +210,19 @@ against FTS operator injection, and a GDI object-leak check across repeated capt
 The privacy guarantees are tested as behaviour, not documentation: excluded processes and
 title keywords are asserted to produce no database row and no file on disk, for manual
 captures as well as automatic ones, and an idle or locked session is asserted never to reach
-the screen at all. Those tests drive the pipeline through a synthetic screen, and the OCR
-tests read text rendered to a bitmap, so the suite never reads or stores your actual desktop.
-
-Tests that need something the machine may not have degrade to a no-op rather than a failure:
-the capture tests when there is no interactive desktop, the OCR tests when no language pack
-is installed. A machine without a language pack is a supported configuration — it is exactly
-the state the app ships in.
-
----
-
-## Extending it
-
-The seams are the interfaces in `RecallOS.Core/Abstractions`. Register a replacement before
-`AddRecallOs()` and it takes precedence:
-
-| To change | Implement | Notes |
-|---|---|---|
-| OCR engine | `IOcrEngine` | e.g. Windows.Media.Ocr, or a cloud recogniser |
-| Embeddings | `IEmbeddingProvider` | give it a new `ModelId`; the backfill handles the rest |
-| Activity labels | `IIntentClassifier` | a learned model drops in behind the same contract |
-| Retrieval | `ISearchService` | ranking is entirely replaceable |
-| Capture | `IScreenCaptureService` | e.g. Windows.Graphics.Capture for per-window composition |
-
-The schema is versioned in `DatabaseBootstrapper`: add a numbered migration and it applies
-in order, in a transaction, without asking the user to discard their history.
+the screen at all. Recording is covered end to end — the scheduler keeps capturing until it
+is paused, and text recorded to the screen is afterwards provably findable by searching for
+it. Those tests drive a synthetic screen, so the suite never reads or stores a real desktop.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+RecallOS is proprietary software. © 2026 Ansh Patel. All rights reserved.
+
+You are licensed to install and use the application on machines you own or control. The
+source code is not distributed, and the software may not be copied, redistributed, modified
+or reverse engineered. See [LICENSE](LICENSE) for the full terms.
+
+Third-party components (Tesseract OCR, SQLite, .NET libraries) remain under their own
+licenses.

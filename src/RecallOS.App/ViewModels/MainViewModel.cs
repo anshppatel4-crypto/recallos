@@ -102,8 +102,32 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _isSettingsOpen;
 
+    /// <summary>
+    /// Which pane the sidebar has selected. The window is a shell with one content area
+    /// rather than a single dense screen, so a new user lands somewhere that explains
+    /// itself instead of on an empty result list.
+    /// </summary>
     [ObservableProperty]
-    private bool _isWelcomeVisible;
+    private AppSection _section = AppSection.Home;
+
+    /// <summary>True once anything at all has been captured.</summary>
+    [ObservableProperty]
+    private bool _hasAnyFrames;
+
+    /// <summary>True when a language pack is installed, so captures can be searched.</summary>
+    [ObservableProperty]
+    private bool _isTextSearchReady;
+
+    /// <summary>True once the user has set at least one exclusion.</summary>
+    [ObservableProperty]
+    private bool _hasExclusions;
+
+    /// <summary>How many of the three getting-started steps are done.</summary>
+    [ObservableProperty]
+    private int _setupProgress;
+
+    [ObservableProperty]
+    private string _oldestFrameText = string.Empty;
 
     /// <summary>
     /// How many captures were deliberately discarded this session, and why.
@@ -134,6 +158,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ISettingsStore settings,
         TimelineViewModel timeline,
         SettingsViewModel settingsViewModel,
+        TutorialViewModel tutorial,
         ILogger<MainViewModel>? logger = null)
     {
         _search = search ?? throw new ArgumentNullException(nameof(search));
@@ -148,6 +173,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
         Settings = settingsViewModel ?? throw new ArgumentNullException(nameof(settingsViewModel));
+        Tutorial = tutorial ?? throw new ArgumentNullException(nameof(tutorial));
+
+        Tutorial.SettingsRequested += (_, _) => IsSettingsOpen = true;
+        Tutorial.Finished += async (_, _) => await RefreshSetupStateAsync().ConfigureAwait(true);
 
         _dispatcher = Dispatcher.CurrentDispatcher;
         _searchMode = _settings.Current.DefaultSearchMode;
@@ -178,6 +207,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public SettingsViewModel Settings { get; }
 
+    public TutorialViewModel Tutorial { get; }
+
     public IReadOnlyList<SearchMode> SearchModes { get; } =
         [SearchMode.Hybrid, SearchMode.Keyword, SearchMode.Semantic];
 
@@ -196,7 +227,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Settings.ReadFrom(_settings.Current);
 
         // Shown before anything is recorded, so the user meets the explanation first.
-        IsWelcomeVisible = !_settings.Current.HasSeenWelcome;
+        if (!_settings.Current.HasSeenWelcome)
+        {
+            Tutorial.Start();
+        }
 
         await RunSearchAsync().ConfigureAwait(true);
         await Timeline.LoadAsync().ConfigureAwait(true);
@@ -209,8 +243,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _heartbeatTimer.Start();
         }
 
+        await RefreshSetupStateAsync().ConfigureAwait(true);
+
         StatusMessage = TotalFrames == 0
-            ? "No frames yet. Press Capture, or turn on continuous recording in Settings."
+            ? "Nothing recorded yet. Press Capture for one frame, or Record to keep going."
             : "Ready.";
     }
 
@@ -525,29 +561,67 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void ToggleSettings() => IsSettingsOpen = !IsSettingsOpen;
 
-    /// <summary>
-    /// Dismiss the first-run introduction and remember that, so it is shown exactly once.
-    /// </summary>
+    /// <summary>Switch the content pane from the sidebar.</summary>
     [RelayCommand]
-    private async Task DismissWelcomeAsync()
+    private async Task NavigateAsync(string? target)
     {
-        IsWelcomeVisible = false;
-
-        if (_settings.Current.HasSeenWelcome)
+        if (!Enum.TryParse<AppSection>(target, ignoreCase: true, out var section))
         {
             return;
         }
 
-        var settings = _settings.Current.Clone();
-        settings.HasSeenWelcome = true;
-        await _settings.SaveAsync(settings).ConfigureAwait(true);
+        Section = section;
+
+        if (section == AppSection.Home)
+        {
+            await RefreshSetupStateAsync().ConfigureAwait(true);
+        }
+        else if (section == AppSection.Timeline)
+        {
+            await Timeline.LoadAsync().ConfigureAwait(true);
+        }
+    }
+
+    /// <summary>Jump to search with a query already filled in, from the Home shortcuts.</summary>
+    [RelayCommand]
+    private async Task SearchForAsync(string? query)
+    {
+        Section = AppSection.Search;
+        SearchText = query ?? string.Empty;
+        _searchTimer.Stop();
+        await RunSearchAsync().ConfigureAwait(true);
     }
 
     [RelayCommand]
-    private async Task OpenSettingsFromWelcomeAsync()
+    private void ShowTutorial() => Tutorial.Start();
+
+    /// <summary>
+    /// Recompute the getting-started checklist. Cheap, and it keeps Home honest about
+    /// what is actually set up rather than assuming the user followed the walkthrough.
+    /// </summary>
+    public async Task RefreshSetupStateAsync()
     {
-        await DismissWelcomeAsync().ConfigureAwait(true);
-        IsSettingsOpen = true;
+        try
+        {
+            var statistics = await _repository.GetStatisticsAsync().ConfigureAwait(true);
+
+            HasAnyFrames = statistics.FrameCount > 0;
+            OldestFrameText = statistics.OldestFrame is { } oldest
+                ? $"since {oldest.ToLocalTime():d MMM}"
+                : "nothing recorded yet";
+
+            IsTextSearchReady = Settings.IsOcrReady;
+
+            var settings = _settings.Current;
+            HasExclusions = settings.ParseExcludedProcesses().Count > 0
+                            || settings.ParseExcludedTitleKeywords().Count > 0;
+
+            SetupProgress = (HasAnyFrames ? 1 : 0) + (IsTextSearchReady ? 1 : 0) + (HasExclusions ? 1 : 0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not refresh the setup checklist.");
+        }
     }
 
     // ---- events ---------------------------------------------------------------------
@@ -624,9 +698,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    private void OnSettingsSaved(object? sender, RecallSettings settings)
+    private async void OnSettingsSaved(object? sender, RecallSettings settings)
     {
         SearchMode = settings.DefaultSearchMode;
+        await RefreshSetupStateAsync().ConfigureAwait(true);
 
         if (settings.AutoCaptureEnabled)
         {

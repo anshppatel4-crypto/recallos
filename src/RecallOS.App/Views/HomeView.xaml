@@ -1,0 +1,335 @@
+<UserControl x:Class="RecallOS.App.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:RecallOS.App.ViewModels"
+             xmlns:conv="clr-namespace:RecallOS.App.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
+
+    <UserControl.Resources>
+        <conv:InverseBooleanConverter x:Key="InverseBoolean" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <!-- A checklist row: a tick when done, a hollow ring when not. -->
+        <Style x:Key="StepRow" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BgBase}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Stroke}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="11" />
+            <Setter Property="Padding" Value="16,14" />
+            <Setter Property="Margin" Value="0,0,0,9" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+        <StackPanel Margin="4,4,4,28">
+
+            <!-- ===================== Hero ===================== -->
+            <Border CornerRadius="16" Padding="30,28" Margin="0,0,0,18"
+                    BorderBrush="{StaticResource Stroke}" BorderThickness="1">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#2A4F46E5" Offset="0" />
+                        <GradientStop Color="#140E1015" Offset="0.55" />
+                        <GradientStop Color="#00000000" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                        <TextBlock Style="{StaticResource Display}" FontSize="27"
+                                   Text="Your screen, remembered." />
+                        <TextBlock Style="{StaticResource Caption}" TextWrapping="Wrap" MaxWidth="520"
+                                   LineHeight="19" Margin="0,10,0,0"
+                                   Text="Capture a moment, or record continuously. Everything is stored on this machine, indexed by the text on screen, and searchable the moment it is read." />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
+                            <Button Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding CaptureNowCommand}"
+                                    IsEnabled="{Binding IsCapturing, Converter={StaticResource InverseBoolean}}"
+                                    ToolTip="Capture the screen now  (Ctrl+Shift+R from anywhere)">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE722;" FontFamily="{StaticResource IconFont}" FontSize="13"
+                                               Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBlock Text="Capture now" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource GhostButton}" Margin="9,0,0,0"
+                                    Command="{Binding ToggleRecordingCommand}"
+                                    ToolTip="Keep capturing until you press Pause">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="{StaticResource IconFont}" FontSize="12"
+                                               VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="&#xE768;" />
+                                                <Setter Property="Foreground" Value="{StaticResource Success}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                                        <Setter Property="Text" Value="&#xE769;" />
+                                                        <Setter Property="Foreground" Value="{StaticResource Warning}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Start recording" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                                        <Setter Property="Text" Value="Stop recording" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Live recording state, so Home always says what the recorder is doing. -->
+                    <Border Grid.Column="1" VerticalAlignment="Top"
+                            Background="{StaticResource BgBase}" BorderBrush="{StaticResource Stroke}"
+                            BorderThickness="1" CornerRadius="12" Padding="18,15" MinWidth="168">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7" Height="7" VerticalAlignment="Center" Margin="0,0,8,0">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="{StaticResource TextTertiary}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                                    <Setter Property="Fill" Value="{StaticResource Danger}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock FontWeight="SemiBold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+                                            <Setter Property="Text" Value="Paused" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                                    <Setter Property="Text" Value="Recording" />
+                                                    <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource Micro}" Margin="0,7,0,0"
+                                       Foreground="{StaticResource Accent}"
+                                       Text="{Binding RecordingStatus}"
+                                       Visibility="{Binding IsRecording, Converter={StaticResource BoolToVisibility}}" />
+
+                            <Rectangle Height="1" Fill="{StaticResource Stroke}" Margin="0,13,0,12" />
+
+                            <TextBlock Style="{StaticResource Display}" FontSize="24"
+                                       Text="{Binding TotalFrames, StringFormat='{}{0:N0}'}" />
+                            <TextBlock Style="{StaticResource Micro}" Text="frames captured" />
+                            <TextBlock Style="{StaticResource Micro}" Margin="0,3,0,0"
+                                       Foreground="{StaticResource TextTertiary}"
+                                       Text="{Binding OldestFrameText}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ===================== Getting started ===================== -->
+            <Border Style="{StaticResource Card}" Padding="24,22" Margin="0,0,0,18">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource H1}" Text="Get set up" />
+                            <TextBlock Style="{StaticResource Micro}" Margin="0,4,0,0"
+                                       Text="{Binding SetupProgress, StringFormat='{}{0} of 3 done'}" />
+                        </StackPanel>
+                        <Button Content="Replay the walkthrough" Style="{StaticResource SubtleButton}"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Command="{Binding ShowTutorialCommand}" />
+                    </Grid>
+
+                    <!-- 1. Capture something -->
+                    <Border Style="{StaticResource StepRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontFamily="{StaticResource IconFont}" FontSize="15"
+                                       VerticalAlignment="Center" Margin="0,0,14,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="&#xECCB;" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextTertiary}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasAnyFrames}" Value="True">
+                                                <Setter Property="Text" Value="&#xEC61;" />
+                                                <Setter Property="Foreground" Value="{StaticResource Success}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Style="{StaticResource Body}" FontWeight="SemiBold" Text="Capture your first frame" />
+                                <TextBlock Style="{StaticResource Micro}" TextWrapping="Wrap" Margin="0,3,0,0"
+                                           Text="Press Capture above, or Ctrl+Shift+R from anywhere." />
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="Capture"
+                                    Command="{Binding CaptureNowCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasAnyFrames}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- 2. Text search -->
+                    <Border Style="{StaticResource StepRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontFamily="{StaticResource IconFont}" FontSize="15"
+                                       VerticalAlignment="Center" Margin="0,0,14,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="&#xECCB;" />
+                                        <Setter Property="Foreground" Value="{StaticResource Warning}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTextSearchReady}" Value="True">
+                                                <Setter Property="Text" Value="&#xEC61;" />
+                                                <Setter Property="Foreground" Value="{StaticResource Success}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Style="{StaticResource Body}" FontWeight="SemiBold" Text="Turn on text search" />
+                                <TextBlock Style="{StaticResource Micro}" TextWrapping="Wrap" Margin="0,3,0,0"
+                                           Text="Install the language pack so RecallOS can read the text inside your captures. Frames taken before then become searchable too." />
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="Install"
+                                    Command="{Binding ToggleSettingsCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTextSearchReady}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- 3. Exclusions -->
+                    <Border Style="{StaticResource StepRow}" Margin="0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontFamily="{StaticResource IconFont}" FontSize="15"
+                                       VerticalAlignment="Center" Margin="0,0,14,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="&#xECCB;" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextTertiary}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasExclusions}" Value="True">
+                                                <Setter Property="Text" Value="&#xEC61;" />
+                                                <Setter Property="Foreground" Value="{StaticResource Success}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Style="{StaticResource Body}" FontWeight="SemiBold" Text="Choose what it may never see" />
+                                <TextBlock Style="{StaticResource Micro}" TextWrapping="Wrap" Margin="0,3,0,0"
+                                           Text="Add your password manager, banking or private windows. Excluded frames never reach the disk." />
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="Set up" Style="{StaticResource GhostButton}"
+                                    Command="{Binding ToggleSettingsCommand}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- ===================== Jump back in ===================== -->
+            <Border Style="{StaticResource Card}" Padding="24,22">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource H1}" Text="Jump back in" />
+                    <TextBlock Style="{StaticResource Micro}" Margin="0,4,0,16"
+                               Text="Common ways to find something you have seen." />
+
+                    <WrapPanel>
+                        <Button Style="{StaticResource GhostButton}" Margin="0,0,9,9"
+                                Command="{Binding SearchForCommand}" CommandParameter="after:today"
+                                Content="Everything today" />
+                        <Button Style="{StaticResource GhostButton}" Margin="0,0,9,9"
+                                Command="{Binding SearchForCommand}" CommandParameter="after:yesterday"
+                                Content="Since yesterday" />
+                        <Button Style="{StaticResource GhostButton}" Margin="0,0,9,9"
+                                Command="{Binding SearchForCommand}" CommandParameter="app:chrome"
+                                Content="In the browser" />
+                        <Button Style="{StaticResource GhostButton}" Margin="0,0,9,9"
+                                Command="{Binding SearchForCommand}" CommandParameter="app:code"
+                                Content="In the editor" />
+                        <Button Style="{StaticResource GhostButton}" Margin="0,0,9,9"
+                                Command="{Binding NavigateCommand}" CommandParameter="Timeline"
+                                Content="Browse the timeline" />
+                        <Button Style="{StaticResource GhostButton}" Margin="0,0,9,9"
+                                Command="{Binding SearchForCommand}" CommandParameter=""
+                                Content="Show me everything" />
+                    </WrapPanel>
+
+                    <Border Background="{StaticResource BgBase}" CornerRadius="10" Padding="15,13" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Micro}" FontWeight="Bold"
+                                       Foreground="{StaticResource TextTertiary}" Text="SEARCH SYNTAX" />
+                            <TextBlock Style="{StaticResource Micro}" Margin="0,8,0,0" LineHeight="19"
+                                       FontFamily="{StaticResource MonoFont}"
+                                       Foreground="{StaticResource TextSecondary}">
+                                <Run Text="invoice" /><Run Text="  —  words anywhere in the captured text" Foreground="{StaticResource TextTertiary}" /><LineBreak />
+                                <Run Text="&quot;pull request&quot;" /><Run Text="  —  an exact phrase" Foreground="{StaticResource TextTertiary}" /><LineBreak />
+                                <Run Text="app:chrome" /><Run Text="  —  only frames from one application" Foreground="{StaticResource TextTertiary}" /><LineBreak />
+                                <Run Text="after:yesterday" /><Run Text="  —  time bounds, also before: and on:" Foreground="{StaticResource TextTertiary}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

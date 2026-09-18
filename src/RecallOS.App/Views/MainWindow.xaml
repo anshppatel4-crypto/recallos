@@ -21,13 +21,9 @@
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True">
 
-    <!-- Custom chrome: the standard title bar would sit outside the design system. -->
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="46"
-                            ResizeBorderThickness="7"
-                            CornerRadius="0"
-                            GlassFrameThickness="0"
-                            UseAeroCaptionButtons="False" />
+        <shell:WindowChrome CaptionHeight="46" ResizeBorderThickness="7" CornerRadius="0"
+                            GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -41,6 +37,47 @@
         <conv:ActivityHeightConverter x:Key="ActivityHeight" />
         <conv:IntentColorConverter x:Key="IntentColor" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <!-- Sidebar entry: an icon, a label, and a rail that lights on the active pane. -->
+        <Style x:Key="NavItem" TargetType="RadioButton">
+            <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Margin" Value="0,0,0,3" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Root" CornerRadius="9" Background="Transparent" Padding="11,9">
+                            <Grid>
+                                <Border x:Name="Rail" Width="3" Height="17" CornerRadius="2"
+                                        HorizontalAlignment="Left" Margin="-7,0,0,0"
+                                        Background="{StaticResource AccentGradient}" Opacity="0" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{TemplateBinding Tag}"
+                                               FontFamily="{StaticResource IconFont}" FontSize="14"
+                                               Width="22" VerticalAlignment="Center"
+                                               Foreground="{TemplateBinding Foreground}" />
+                                    <ContentPresenter VerticalAlignment="Center" Margin="4,0,0,0" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource BgHover}" />
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource AccentWash}" />
+                                <Setter TargetName="Rail" Property="Opacity" Value="1" />
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Window.InputBindings>
@@ -48,15 +85,16 @@
         <KeyBinding Key="Left" Modifiers="Alt" Command="{Binding StepCommand}" CommandParameter="back" />
         <KeyBinding Key="Right" Modifiers="Alt" Command="{Binding StepCommand}" CommandParameter="forward" />
         <KeyBinding Key="Delete" Modifiers="Control" Command="{Binding DeleteSelectedCommand}" />
+        <KeyBinding Key="D1" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="Home" />
+        <KeyBinding Key="D2" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="Search" />
+        <KeyBinding Key="D3" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="Timeline" />
     </Window.InputBindings>
 
     <Border Background="{StaticResource BgBase}" BorderBrush="{StaticResource Stroke}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="46" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
@@ -68,45 +106,31 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Mark -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                     <Border Width="22" Height="22" CornerRadius="6" Background="{StaticResource AccentGradient}">
-                        <TextBlock Text="&#xE81C;"
-                                   FontFamily="{StaticResource IconFont}"
-                                   FontSize="11"
-                                   Foreground="White"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
+                        <TextBlock Text="&#xE81C;" FontFamily="{StaticResource IconFont}" FontSize="11"
+                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <TextBlock Text="RecallOS"
-                               Style="{StaticResource H2}"
-                               VerticalAlignment="Center"
-                               Margin="9,0,0,0" />
+                    <TextBlock Text="RecallOS" Style="{StaticResource H2}" VerticalAlignment="Center" Margin="9,0,0,0" />
                     <Border Style="{StaticResource Pill}" Margin="9,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="LOCAL" Style="{StaticResource Micro}" FontWeight="Bold" />
                     </Border>
                 </StackPanel>
 
-                <!-- Recording status, centred in the caption -->
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
-                    <Ellipse x:Name="StatusDot" Width="7" Height="7" Margin="0,0,7,0">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse Width="7" Height="7" Margin="0,0,7,0">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
                                 <Setter Property="Fill" Value="{StaticResource TextTertiary}" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsRecording}" Value="True">
                                         <Setter Property="Fill" Value="{StaticResource Danger}" />
-                                        <!-- A slow pulse: unmistakable that recording is live, without nagging. -->
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard Name="Pulse">
                                                 <Storyboard>
                                                     <DoubleAnimation Storyboard.TargetProperty="Opacity"
                                                                      From="1" To="0.25" Duration="0:0:1.1"
-                                                                     AutoReverse="True"
-                                                                     RepeatBehavior="Forever" />
+                                                                     AutoReverse="True" RepeatBehavior="Forever" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>
@@ -133,17 +157,11 @@
                         </TextBlock.Style>
                     </TextBlock>
 
-                    <!-- Proof of life between captures: without a countdown the window looks
-                         identical whether the recorder is running or has died. -->
-                    <TextBlock Style="{StaticResource Micro}"
-                               VerticalAlignment="Center"
-                               Margin="7,0,0,0"
-                               Foreground="{StaticResource Accent}"
-                               Text="{Binding RecordingStatus}"
+                    <TextBlock Style="{StaticResource Micro}" VerticalAlignment="Center" Margin="7,0,0,0"
+                               Foreground="{StaticResource Accent}" Text="{Binding RecordingStatus}"
                                Visibility="{Binding IsRecording, Converter={StaticResource BoolToVisibility}}" />
                 </StackPanel>
 
-                <!-- Caption buttons -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource CaptionButton}" ToolTip="Minimise" />
                     <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource CaptionButton}" ToolTip="Maximise" />
@@ -151,140 +169,61 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ============================ Command bar ============================ -->
-            <Grid Grid.Row="1" Background="{StaticResource BgSurface}" Margin="0,0,0,1">
-                <Border BorderBrush="{StaticResource Stroke}" BorderThickness="0,0,0,1" Padding="14,10,14,14">
+            <!-- ============================ Sidebar + content ============================ -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="212" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- ===== Sidebar ===== -->
+                <Border Grid.Column="0" Background="{StaticResource BgSurface}"
+                        BorderBrush="{StaticResource Stroke}" BorderThickness="0,1,1,0" Padding="14,18">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                        <!-- Search -->
-                        <Grid Grid.Column="0" Margin="0,0,12,0">
-                            <TextBox x:Name="SearchBox"
-                                     Style="{StaticResource CommandBar}"
-                                     Padding="40,10,86,10"
-                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Grid.Row="0">
+                            <TextBlock Text="BROWSE" Style="{StaticResource SectionLabel}" Margin="11,0,0,9" />
 
-                            <TextBlock Text="&#xE721;"
-                                       Style="{StaticResource Icon}"
-                                       FontSize="14"
-                                       HorizontalAlignment="Left"
-                                       Margin="14,0,0,0"
-                                       IsHitTestVisible="False" />
+                            <RadioButton GroupName="Nav" Style="{StaticResource NavItem}" Tag="&#xE80F;" Content="Home"
+                                         IsChecked="{Binding Section, Converter={StaticResource EnumEquality}, ConverterParameter=Home}"
+                                         Command="{Binding NavigateCommand}" CommandParameter="Home"
+                                         ToolTip="Overview and setup  (Ctrl+1)" />
+                            <RadioButton GroupName="Nav" Style="{StaticResource NavItem}" Tag="&#xE721;" Content="Search"
+                                         IsChecked="{Binding Section, Converter={StaticResource EnumEquality}, ConverterParameter=Search}"
+                                         Command="{Binding NavigateCommand}" CommandParameter="Search"
+                                         ToolTip="Find anything you have seen  (Ctrl+2)" />
+                            <RadioButton GroupName="Nav" Style="{StaticResource NavItem}" Tag="&#xE81C;" Content="Timeline"
+                                         IsChecked="{Binding Section, Converter={StaticResource EnumEquality}, ConverterParameter=Timeline}"
+                                         Command="{Binding NavigateCommand}" CommandParameter="Timeline"
+                                         ToolTip="Scrub through your day  (Ctrl+3)" />
+                        </StackPanel>
 
-                            <TextBlock IsHitTestVisible="False"
-                                       Margin="40,0,0,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextTertiary}"
-                                       FontFamily="{StaticResource UiFont}"
-                                       FontSize="14"
-                                       Text="Search everything you have seen">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SearchText}" Value="">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                        <!-- Capture controls stay reachable whatever pane is open. -->
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="RECORD" Style="{StaticResource SectionLabel}" Margin="11,0,0,9" />
 
-                            <!-- Keyboard affordance, hidden once there is a query to clear -->
-                            <Border HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,12,0"
-                                    Background="{StaticResource BgActive}"
-                                    CornerRadius="5"
-                                    Padding="7,3"
-                                    IsHitTestVisible="False">
-                                <TextBlock Text="Ctrl F" Style="{StaticResource Micro}" FontFamily="{StaticResource MonoFont}" />
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SearchText}" Value="">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                            </Border>
-
-                            <Button Content="&#xE894;"
-                                    Width="28" Height="28"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,7,0"
-                                    Command="{Binding ClearSearchCommand}"
-                                    ToolTip="Clear">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SearchText}" Value="">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
-                            <ProgressBar Height="2"
-                                         VerticalAlignment="Bottom"
-                                         Margin="1,0,1,1"
-                                         IsIndeterminate="True"
-                                         Background="Transparent"
-                                         BorderThickness="0"
-                                         Foreground="{StaticResource Accent}"
-                                         Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}" />
-                        </Grid>
-
-                        <!-- Ranking mode -->
-                        <Border Grid.Column="1"
-                                VerticalAlignment="Center"
-                                Margin="0,0,12,0"
-                                Background="{StaticResource BgBase}"
-                                BorderBrush="{StaticResource Stroke}"
-                                BorderThickness="1"
-                                CornerRadius="9"
-                                Padding="3">
-                            <StackPanel Orientation="Horizontal">
-                                <RadioButton Content="Hybrid" GroupName="Mode" Style="{StaticResource ModeToggle}"
-                                             IsChecked="{Binding SearchMode, Converter={StaticResource EnumEquality}, ConverterParameter=Hybrid}"
-                                             ToolTip="Words and meaning combined" />
-                                <RadioButton Content="Words" GroupName="Mode" Style="{StaticResource ModeToggle}"
-                                             IsChecked="{Binding SearchMode, Converter={StaticResource EnumEquality}, ConverterParameter=Keyword}"
-                                             ToolTip="Exact full-text matching" />
-                                <RadioButton Content="Meaning" GroupName="Mode" Style="{StaticResource ModeToggle}"
-                                             IsChecked="{Binding SearchMode, Converter={StaticResource EnumEquality}, ConverterParameter=Semantic}"
-                                             ToolTip="Similarity over the semantic index" />
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Actions -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Style="{StaticResource PrimaryButton}"
+                            <Button Style="{StaticResource PrimaryButton}" HorizontalAlignment="Stretch"
                                     Command="{Binding CaptureNowCommand}"
                                     IsEnabled="{Binding IsCapturing, Converter={StaticResource InverseBoolean}}"
                                     ToolTip="Capture the screen now  (Ctrl+Shift+R from anywhere)">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE722;" FontFamily="{StaticResource IconFont}" FontSize="13"
-                                               Foreground="White" VerticalAlignment="Center" Margin="0,0,7,0" />
+                                               Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0" />
                                     <TextBlock Text="Capture" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
 
-                            <Button Style="{StaticResource GhostButton}"
-                                    Margin="8,0,0,0"
+                            <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" Margin="0,8,0,0"
                                     Command="{Binding ToggleRecordingCommand}"
-                                    ToolTip="Start or pause continuous recording">
-                                <StackPanel Orientation="Horizontal">
+                                    ToolTip="Keep capturing until you press Pause">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBlock FontFamily="{StaticResource IconFont}" FontSize="12"
-                                               VerticalAlignment="Center" Margin="0,0,7,0">
+                                               VerticalAlignment="Center" Margin="0,0,8,0">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="&#xE768;" />
@@ -312,379 +251,452 @@
                                     </TextBlock>
                                 </StackPanel>
                             </Button>
+                        </StackPanel>
 
-                            <Button Content="&#xE713;"
-                                    Style="{StaticResource IconButton}"
-                                    Margin="8,0,0,0"
-                                    Command="{Binding ToggleSettingsCommand}"
-                                    ToolTip="Settings" />
+                        <StackPanel Grid.Row="2" Margin="0,18,0,0">
+                            <Rectangle Height="1" Fill="{StaticResource Stroke}" Margin="0,0,0,12" />
+                            <Button Style="{StaticResource SubtleButton}" HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left" Padding="11,9"
+                                    Command="{Binding ShowTutorialCommand}" ToolTip="Replay the guided introduction">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE897;" FontFamily="{StaticResource IconFont}" FontSize="14"
+                                               Width="22" VerticalAlignment="Center" />
+                                    <TextBlock Text="Walkthrough" VerticalAlignment="Center" Margin="4,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource SubtleButton}" HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left" Padding="11,9"
+                                    Command="{Binding ToggleSettingsCommand}" ToolTip="Recording, privacy and storage">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE713;" FontFamily="{StaticResource IconFont}" FontSize="14"
+                                               Width="22" VerticalAlignment="Center" />
+                                    <TextBlock Text="Settings" VerticalAlignment="Center" Margin="4,0,0,0" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
-            </Grid>
 
-            <!-- ============================ Results + replay ============================ -->
-            <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="430" MinWidth="330" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" MinWidth="400" />
-                </Grid.ColumnDefinitions>
+                <!-- ===== Content ===== -->
+                <Grid Grid.Column="1">
 
-                <!-- Results -->
-                <Grid Grid.Column="0" Margin="12,12,6,6">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0" Margin="10,0,10,9">
-                        <TextBlock Text="{Binding ResultSummary}" Style="{StaticResource Micro}" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding Warning}"
-                                   Style="{StaticResource Micro}"
-                                   Foreground="{StaticResource Warning}"
-                                   HorizontalAlignment="Right"
-                                   TextTrimming="CharacterEllipsis"
-                                   MaxWidth="250"
-                                   ToolTip="{Binding Warning}"
-                                   Visibility="{Binding Warning, Converter={StaticResource NullToVisibility}}" />
+                    <!-- ===== Home ===== -->
+                    <Grid Margin="20,18,16,0">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Section}" Value="Home">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <views:HomeView />
                     </Grid>
 
-                    <ListBox Grid.Row="1"
-                             x:Name="ResultsList"
-                             Style="{StaticResource ResultListBox}"
-                             ItemContainerStyle="{StaticResource ResultListItem}"
-                             ItemsSource="{Binding Results}"
-                             SelectedItem="{Binding SelectedFrame}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type vm:FrameItemViewModel}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- DecodePixelWidth keeps a list of 4K frames cheap to scroll. -->
-                                    <Border Grid.Column="0"
-                                            Width="124" Height="70"
-                                            CornerRadius="7"
-                                            Background="{StaticResource BgBase}"
-                                            BorderBrush="{StaticResource Stroke}"
-                                            BorderThickness="1"
-                                            ClipToBounds="True"
-                                            Margin="0,0,12,0">
-                                        <Image Source="{Binding PreviewPath, Converter={StaticResource ImagePath}, ConverterParameter=248}"
-                                               Stretch="UniformToFill"
-                                               RenderOptions.BitmapScalingMode="LowQuality" />
-                                    </Border>
-
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="{Binding Title}"
-                                                   Style="{StaticResource Body}"
-                                                   FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding Title}" />
-
-                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,5">
-                                            <TextBlock Text="{Binding CapturedAt, Converter={StaticResource RelativeTime}}"
-                                                       Style="{StaticResource Micro}"
-                                                       VerticalAlignment="Center" />
-
-                                            <Border Margin="8,0,0,0"
-                                                    Padding="6,1"
-                                                    CornerRadius="4"
-                                                    VerticalAlignment="Center"
-                                                    Background="{Binding IntentLabel, Converter={StaticResource IntentColor}}"
-                                                    Visibility="{Binding HasIntent, Converter={StaticResource BoolToVisibility}}">
-                                                <TextBlock Text="{Binding IntentLabel}"
-                                                           FontFamily="{StaticResource UiFont}"
-                                                           FontSize="9.5"
-                                                           FontWeight="Bold"
-                                                           Foreground="#FF0A0B0F" />
-                                            </Border>
-
-                                            <TextBlock Text="{Binding ProcessName}"
-                                                       Style="{StaticResource Micro}"
-                                                       Margin="8,0,0,0"
-                                                       VerticalAlignment="Center" />
-                                        </StackPanel>
-
-                                        <!-- Matches highlighted from structured spans, not embedded markup. -->
-                                        <TextBlock Style="{StaticResource Micro}"
-                                                   Foreground="{StaticResource TextSecondary}"
-                                                   TextWrapping="Wrap"
-                                                   MaxHeight="48"
-                                                   LineHeight="15"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ctl:HighlightedTextBlock.SourceText="{Binding Snippet}"
-                                                   ctl:HighlightedTextBlock.Highlights="{Binding Highlights}"
-                                                   ctl:HighlightedTextBlock.HighlightBrush="{StaticResource Highlight}" />
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <!-- Empty state -->
-                    <StackPanel Grid.Row="1"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Center"
-                                Margin="34"
-                                Visibility="{Binding Results.Count, Converter={StaticResource ZeroToVisibility}}">
-                        <Border Width="58" Height="58" CornerRadius="16"
-                                Background="{StaticResource BgSurface}"
-                                BorderBrush="{StaticResource Stroke}"
-                                BorderThickness="1"
-                                HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE81C;"
-                                       FontFamily="{StaticResource IconFont}"
-                                       FontSize="22"
-                                       Foreground="{StaticResource TextTertiary}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Nothing here yet"
-                                   Style="{StaticResource H1}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,16,0,0" />
-                        <TextBlock Style="{StaticResource Caption}"
-                                   Foreground="{StaticResource TextTertiary}"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap"
-                                   MaxWidth="290"
-                                   Margin="0,7,0,0"
-                                   Text="Capture the screen, or switch on continuous recording. Everything is stored on this machine and nothing is ever uploaded." />
-                    </StackPanel>
-                </Grid>
-
-                <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"
-                              Background="Transparent" ShowsPreview="False" />
-
-                <!-- Replay -->
-                <Border Grid.Column="2" Style="{StaticResource Card}" Margin="6,12,12,6">
+                    <!-- ===== Search ===== -->
                     <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Section}" Value="Search">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0"
-                                BorderBrush="{StaticResource Stroke}"
-                                BorderThickness="0,0,0,1"
-                                Padding="16,13"
-                                Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                        <Border Grid.Row="0" Background="{StaticResource BgSurface}"
+                                BorderBrush="{StaticResource Stroke}" BorderThickness="0,1,0,1" Padding="18,14">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <TextBlock Text="{Binding SelectedFrame.Title}"
-                                               Style="{StaticResource H2}"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                        <TextBlock Style="{StaticResource Micro}"
-                                                   Text="{Binding SelectedFrame.CapturedAt, StringFormat='{}{0:ddd d MMM yyyy, HH:mm:ss}'}" />
-                                        <TextBlock Style="{StaticResource Micro}" Text="  &#183;  " />
-                                        <TextBlock Style="{StaticResource Micro}" Text="{Binding SelectedFrame.SizeText}" />
-                                        <TextBlock Style="{StaticResource Micro}" Text="  &#183;  " />
-                                        <TextBlock Style="{StaticResource Micro}"
-                                                   Foreground="{StaticResource Accent}"
-                                                   Text="{Binding SelectedFrame.MatchExplanation}" />
-                                    </StackPanel>
-                                </StackPanel>
+                                <Grid Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBox x:Name="SearchBox" Style="{StaticResource CommandBar}"
+                                             Padding="40,10,86,10"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
-                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button Content="&#xE76B;" Style="{StaticResource IconButton}"
-                                            Command="{Binding StepCommand}" CommandParameter="back"
-                                            ToolTip="Previous frame in time  (Alt+Left)" />
-                                    <Button Content="&#xE76C;" Style="{StaticResource IconButton}"
-                                            Command="{Binding StepCommand}" CommandParameter="forward"
-                                            ToolTip="Next frame in time  (Alt+Right)" />
-                                    <Rectangle Width="1" Margin="7,7" Fill="{StaticResource Stroke}" />
-                                    <Button Content="&#xE8A7;" Style="{StaticResource IconButton}"
-                                            Command="{Binding OpenImageCommand}"
-                                            ToolTip="Open the full image" />
-                                    <Button Content="&#xE8C8;" Style="{StaticResource IconButton}"
-                                            Command="{Binding CopyTextCommand}"
-                                            ToolTip="Copy the extracted text" />
-                                    <Button Content="&#xE74D;" Style="{StaticResource IconButton}"
-                                            Foreground="{StaticResource Danger}"
-                                            Command="{Binding DeleteSelectedCommand}"
-                                            ToolTip="Delete this frame and its image  (Ctrl+Delete)" />
-                                </StackPanel>
+                                    <TextBlock Text="&#xE721;" Style="{StaticResource Icon}" FontSize="14"
+                                               HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False" />
+
+                                    <TextBlock IsHitTestVisible="False" Margin="40,0,0,0" VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextTertiary}"
+                                               FontFamily="{StaticResource UiFont}" FontSize="14"
+                                               Text="Search everything you have seen">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0"
+                                            Background="{StaticResource BgActive}" CornerRadius="5" Padding="7,3"
+                                            IsHitTestVisible="False">
+                                        <TextBlock Text="Ctrl F" Style="{StaticResource Micro}" FontFamily="{StaticResource MonoFont}" />
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+
+                                    <Button Content="&#xE894;" Width="28" Height="28" HorizontalAlignment="Right"
+                                            Margin="0,0,7,0" Command="{Binding ClearSearchCommand}" ToolTip="Clear">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <ProgressBar Height="2" VerticalAlignment="Bottom" Margin="1,0,1,1"
+                                                 IsIndeterminate="True" Background="Transparent" BorderThickness="0"
+                                                 Foreground="{StaticResource Accent}"
+                                                 Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}" />
+                                </Grid>
+
+                                <Border Grid.Column="1" VerticalAlignment="Center"
+                                        Background="{StaticResource BgBase}" BorderBrush="{StaticResource Stroke}"
+                                        BorderThickness="1" CornerRadius="9" Padding="3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Content="Hybrid" GroupName="Mode" Style="{StaticResource ModeToggle}"
+                                                     IsChecked="{Binding SearchMode, Converter={StaticResource EnumEquality}, ConverterParameter=Hybrid}"
+                                                     ToolTip="Words and meaning combined" />
+                                        <RadioButton Content="Words" GroupName="Mode" Style="{StaticResource ModeToggle}"
+                                                     IsChecked="{Binding SearchMode, Converter={StaticResource EnumEquality}, ConverterParameter=Keyword}"
+                                                     ToolTip="Exact full-text matching" />
+                                        <RadioButton Content="Meaning" GroupName="Mode" Style="{StaticResource ModeToggle}"
+                                                     IsChecked="{Binding SearchMode, Converter={StaticResource EnumEquality}, ConverterParameter=Semantic}"
+                                                     ToolTip="Similarity over the semantic index" />
+                                    </StackPanel>
+                                </Border>
                             </Grid>
                         </Border>
 
-                        <TabControl Grid.Row="1"
-                                    Style="{StaticResource FlatTabControl}"
-                                    ItemContainerStyle="{StaticResource FlatTabItem}"
-                                    Margin="12,9,12,12"
-                                    Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
-                            <TabItem Header="Screen">
-                                <Border Background="{StaticResource BgBase}"
-                                        BorderBrush="{StaticResource Stroke}"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
-                                        Margin="0,9,0,0"
-                                        ClipToBounds="True">
-                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                                        <Image Source="{Binding SelectedImagePath, Converter={StaticResource ImagePath}, ConverterParameter=1900}"
-                                               Stretch="Uniform"
-                                               StretchDirection="DownOnly"
-                                               RenderOptions.BitmapScalingMode="HighQuality" />
-                                    </ScrollViewer>
-                                </Border>
-                            </TabItem>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="410" MinWidth="320" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" MinWidth="360" />
+                            </Grid.ColumnDefinitions>
 
-                            <TabItem Header="Extracted text">
-                                <Border Background="{StaticResource BgBase}"
-                                        BorderBrush="{StaticResource Stroke}"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
-                                        Margin="0,9,0,0">
-                                    <TextBox Text="{Binding SelectedFrameText, Mode=OneWay}"
-                                             IsReadOnly="True"
-                                             TextWrapping="Wrap"
-                                             BorderThickness="0"
-                                             Background="Transparent"
-                                             Foreground="{StaticResource TextSecondary}"
-                                             FontFamily="{StaticResource MonoFont}"
-                                             FontSize="12"
-                                             Padding="16"
-                                             VerticalScrollBarVisibility="Auto"
-                                             SelectionBrush="{StaticResource Accent}" />
-                                </Border>
-                            </TabItem>
-                        </TabControl>
+                            <Grid Grid.Column="0" Margin="14,14,6,10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
 
-                        <!-- Nothing selected -->
-                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasSelection}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
-                            <TextBlock Text="&#xE7C5;"
-                                       FontFamily="{StaticResource IconFont}"
-                                       FontSize="26"
-                                       Foreground="{StaticResource StrokeStrong}"
-                                       HorizontalAlignment="Center" />
-                            <TextBlock Text="Select a moment to replay it"
-                                       Style="{StaticResource Caption}"
-                                       Foreground="{StaticResource TextTertiary}"
-                                       Margin="0,12,0,0" />
+                                <Grid Grid.Row="0" Margin="10,0,10,9">
+                                    <TextBlock Text="{Binding ResultSummary}" Style="{StaticResource Micro}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Warning}" Style="{StaticResource Micro}"
+                                               Foreground="{StaticResource Warning}" HorizontalAlignment="Right"
+                                               TextTrimming="CharacterEllipsis" MaxWidth="230" ToolTip="{Binding Warning}"
+                                               Visibility="{Binding Warning, Converter={StaticResource NullToVisibility}}" />
+                                </Grid>
+
+                                <ListBox Grid.Row="1" x:Name="ResultsList"
+                                         Style="{StaticResource ResultListBox}"
+                                         ItemContainerStyle="{StaticResource ResultListItem}"
+                                         ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedFrame}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:FrameItemViewModel}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Grid.Column="0" Width="124" Height="70" CornerRadius="7"
+                                                        Background="{StaticResource BgBase}"
+                                                        BorderBrush="{StaticResource Stroke}" BorderThickness="1"
+                                                        ClipToBounds="True" Margin="0,0,12,0">
+                                                    <Image Source="{Binding PreviewPath, Converter={StaticResource ImagePath}, ConverterParameter=248}"
+                                                           Stretch="UniformToFill" RenderOptions.BitmapScalingMode="LowQuality" />
+                                                </Border>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Title}" Style="{StaticResource Body}"
+                                                               FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                                               ToolTip="{Binding Title}" />
+
+                                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,5">
+                                                        <TextBlock Text="{Binding CapturedAt, Converter={StaticResource RelativeTime}}"
+                                                                   Style="{StaticResource Micro}" VerticalAlignment="Center" />
+                                                        <Border Margin="8,0,0,0" Padding="6,1" CornerRadius="4" VerticalAlignment="Center"
+                                                                Background="{Binding IntentLabel, Converter={StaticResource IntentColor}}"
+                                                                Visibility="{Binding HasIntent, Converter={StaticResource BoolToVisibility}}">
+                                                            <TextBlock Text="{Binding IntentLabel}" FontFamily="{StaticResource UiFont}"
+                                                                       FontSize="9.5" FontWeight="Bold" Foreground="#FF0A0B0F" />
+                                                        </Border>
+                                                        <TextBlock Text="{Binding ProcessName}" Style="{StaticResource Micro}"
+                                                                   Margin="8,0,0,0" VerticalAlignment="Center" />
+                                                    </StackPanel>
+
+                                                    <TextBlock Style="{StaticResource Micro}"
+                                                               Foreground="{StaticResource TextSecondary}"
+                                                               TextWrapping="Wrap" MaxHeight="48" LineHeight="15"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               ctl:HighlightedTextBlock.SourceText="{Binding Snippet}"
+                                                               ctl:HighlightedTextBlock.Highlights="{Binding Highlights}"
+                                                               ctl:HighlightedTextBlock.HighlightBrush="{StaticResource Highlight}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="30"
+                                            Visibility="{Binding Results.Count, Converter={StaticResource ZeroToVisibility}}">
+                                    <Border Width="52" Height="52" CornerRadius="15" HorizontalAlignment="Center"
+                                            Background="{StaticResource BgSurface}" BorderBrush="{StaticResource Stroke}"
+                                            BorderThickness="1">
+                                        <TextBlock Text="&#xE721;" FontFamily="{StaticResource IconFont}" FontSize="20"
+                                                   Foreground="{StaticResource TextTertiary}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="No matches" Style="{StaticResource H1}" HorizontalAlignment="Center" Margin="0,15,0,0" />
+                                    <TextBlock Style="{StaticResource Caption}" Foreground="{StaticResource TextTertiary}"
+                                               TextAlignment="Center" TextWrapping="Wrap" MaxWidth="280" Margin="0,7,0,0"
+                                               Text="Try fewer words, or switch the ranking mode. If nothing is searchable yet, install the language pack from Settings." />
+                                </StackPanel>
+                            </Grid>
+
+                            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"
+                                          Background="Transparent" ShowsPreview="False" />
+
+                            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="6,14,14,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" BorderBrush="{StaticResource Stroke}" BorderThickness="0,0,0,1"
+                                            Padding="16,13"
+                                            Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding SelectedFrame.Title}" Style="{StaticResource H2}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                    <TextBlock Style="{StaticResource Micro}"
+                                                               Text="{Binding SelectedFrame.CapturedAt, StringFormat='{}{0:ddd d MMM yyyy, HH:mm:ss}'}" />
+                                                    <TextBlock Style="{StaticResource Micro}" Text="  &#183;  " />
+                                                    <TextBlock Style="{StaticResource Micro}" Text="{Binding SelectedFrame.SizeText}" />
+                                                    <TextBlock Style="{StaticResource Micro}" Text="  &#183;  " />
+                                                    <TextBlock Style="{StaticResource Micro}" Foreground="{StaticResource Accent}"
+                                                               Text="{Binding SelectedFrame.MatchExplanation}" />
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <Button Content="&#xE76B;" Style="{StaticResource IconButton}"
+                                                        Command="{Binding StepCommand}" CommandParameter="back"
+                                                        ToolTip="Previous frame in time  (Alt+Left)" />
+                                                <Button Content="&#xE76C;" Style="{StaticResource IconButton}"
+                                                        Command="{Binding StepCommand}" CommandParameter="forward"
+                                                        ToolTip="Next frame in time  (Alt+Right)" />
+                                                <Rectangle Width="1" Margin="7,7" Fill="{StaticResource Stroke}" />
+                                                <Button Content="&#xE8A7;" Style="{StaticResource IconButton}"
+                                                        Command="{Binding OpenImageCommand}" ToolTip="Open the full image" />
+                                                <Button Content="&#xE8C8;" Style="{StaticResource IconButton}"
+                                                        Command="{Binding CopyTextCommand}" ToolTip="Copy the extracted text" />
+                                                <Button Content="&#xE74D;" Style="{StaticResource IconButton}"
+                                                        Foreground="{StaticResource Danger}"
+                                                        Command="{Binding DeleteSelectedCommand}"
+                                                        ToolTip="Delete this frame and its image  (Ctrl+Delete)" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
+                                    <TabControl Grid.Row="1" Style="{StaticResource FlatTabControl}"
+                                                ItemContainerStyle="{StaticResource FlatTabItem}" Margin="12,9,12,12"
+                                                Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                                        <TabItem Header="Screen">
+                                            <Border Background="{StaticResource BgBase}" BorderBrush="{StaticResource Stroke}"
+                                                    BorderThickness="1" CornerRadius="10" Margin="0,9,0,0" ClipToBounds="True">
+                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                                    <Image Source="{Binding SelectedImagePath, Converter={StaticResource ImagePath}, ConverterParameter=1900}"
+                                                           Stretch="Uniform" StretchDirection="DownOnly"
+                                                           RenderOptions.BitmapScalingMode="HighQuality" />
+                                                </ScrollViewer>
+                                            </Border>
+                                        </TabItem>
+
+                                        <TabItem Header="Extracted text">
+                                            <Border Background="{StaticResource BgBase}" BorderBrush="{StaticResource Stroke}"
+                                                    BorderThickness="1" CornerRadius="10" Margin="0,9,0,0">
+                                                <TextBox Text="{Binding SelectedFrameText, Mode=OneWay}" IsReadOnly="True"
+                                                         TextWrapping="Wrap" BorderThickness="0" Background="Transparent"
+                                                         Foreground="{StaticResource TextSecondary}"
+                                                         FontFamily="{StaticResource MonoFont}" FontSize="12" Padding="16"
+                                                         VerticalScrollBarVisibility="Auto"
+                                                         SelectionBrush="{StaticResource Accent}" />
+                                            </Border>
+                                        </TabItem>
+                                    </TabControl>
+
+                                    <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasSelection}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <TextBlock Text="&#xE7C5;" FontFamily="{StaticResource IconFont}" FontSize="26"
+                                                   Foreground="{StaticResource StrokeStrong}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Select a moment to replay it" Style="{StaticResource Caption}"
+                                                   Foreground="{StaticResource TextTertiary}" Margin="0,12,0,0" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <!-- ===== Timeline ===== -->
+                    <Grid Margin="24,20,24,16">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Section}" Value="Timeline">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,18">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Display}" FontSize="24" Text="{Binding Timeline.RangeLabel}" />
+                                <TextBlock Style="{StaticResource Caption}" Margin="0,5,0,0"
+                                           Text="{Binding Timeline.TotalFrames, StringFormat='{}{0:N0} frames · click a bar to open that moment'}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Button Content="&#xE76B;" Style="{StaticResource IconButton}"
+                                        Command="{Binding Timeline.ShiftCommand}" CommandParameter="back" ToolTip="Earlier" />
+                                <Button Content="Today" Style="{StaticResource SubtleButton}" Command="{Binding Timeline.ShowTodayCommand}" />
+                                <Button Content="Week" Style="{StaticResource SubtleButton}" Command="{Binding Timeline.ShowWeekCommand}" />
+                                <Button Content="&#xE76C;" Style="{StaticResource IconButton}"
+                                        Command="{Binding Timeline.ShiftCommand}" CommandParameter="forward" ToolTip="Later" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="20,18" MinHeight="190">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding Timeline.Buckets}" VerticalAlignment="Bottom" Height="140">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type models:TimelineBucket}">
+                                            <Button Width="14" Margin="2,0" VerticalAlignment="Bottom" Cursor="Hand"
+                                                    Height="{Binding FrameCount, Converter={StaticResource ActivityHeight}}"
+                                                    Command="{Binding DataContext.Timeline.SelectBucketCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.ToolTip>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Start, StringFormat='{}{0:ddd d MMM  HH:mm}'}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding FrameCount, StringFormat='{}{0:N0} frames'}" Opacity="0.75" />
+                                                        <TextBlock Text="{Binding DominantApp}" Opacity="0.75" />
+                                                        <TextBlock Text="{Binding DominantIntent}" Opacity="0.75" />
+                                                    </StackPanel>
+                                                </Button.ToolTip>
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="Bar" CornerRadius="4" Opacity="0.72"
+                                                                Background="{Binding DominantIntent, Converter={StaticResource IntentColor}}" />
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Bar" Property="Opacity" Value="1" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+
+                        <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Visibility="{Binding Timeline.TotalFrames, Converter={StaticResource ZeroToVisibility}}">
+                            <TextBlock Text="&#xE81C;" FontFamily="{StaticResource IconFont}" FontSize="26"
+                                       Foreground="{StaticResource StrokeStrong}" HorizontalAlignment="Center" />
+                            <TextBlock Text="Nothing recorded in this range" Style="{StaticResource Caption}"
+                                       Foreground="{StaticResource TextTertiary}" Margin="0,12,0,0" />
                         </StackPanel>
                     </Grid>
-                </Border>
+                </Grid>
             </Grid>
 
-            <!-- ============================ Timeline ============================ -->
-            <Border Grid.Row="3" Background="{StaticResource BgSurface}"
-                    BorderBrush="{StaticResource Stroke}" BorderThickness="0,1,0,1" Padding="18,11">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,18,0">
-                        <TextBlock Text="{Binding Timeline.RangeLabel}" Style="{StaticResource H2}" />
-                        <TextBlock Style="{StaticResource Micro}"
-                                   Text="{Binding Timeline.TotalFrames, StringFormat='{}{0:N0} frames'}" />
-                    </StackPanel>
-
-                    <!-- Each bar is a clickable slice of time; height is log-scaled so quiet periods stay visible. -->
-                    <ScrollViewer Grid.Column="1" Height="48" VerticalAlignment="Center"
-                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                        <ItemsControl ItemsSource="{Binding Timeline.Buckets}" VerticalAlignment="Bottom">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type models:TimelineBucket}">
-                                    <Button Width="9" Margin="1,0" VerticalAlignment="Bottom" Cursor="Hand"
-                                            Height="{Binding FrameCount, Converter={StaticResource ActivityHeight}}"
-                                            Command="{Binding DataContext.Timeline.SelectBucketCommand,
-                                                              RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding}">
-                                        <Button.ToolTip>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Start, StringFormat='{}{0:ddd d MMM  HH:mm}'}" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding FrameCount, StringFormat='{}{0:N0} frames'}" Opacity="0.75" />
-                                                <TextBlock Text="{Binding DominantApp}" Opacity="0.75" />
-                                                <TextBlock Text="{Binding DominantIntent}" Opacity="0.75" />
-                                            </StackPanel>
-                                        </Button.ToolTip>
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border x:Name="Bar"
-                                                        Background="{Binding DominantIntent, Converter={StaticResource IntentColor}}"
-                                                        CornerRadius="3"
-                                                        Opacity="0.7" />
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="Bar" Property="Opacity" Value="1" />
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
-                        <Button Content="&#xE76B;" Style="{StaticResource IconButton}" Width="30" Height="30"
-                                Command="{Binding Timeline.ShiftCommand}" CommandParameter="back" ToolTip="Earlier" />
-                        <Button Content="Today" Style="{StaticResource SubtleButton}"
-                                Command="{Binding Timeline.ShowTodayCommand}" />
-                        <Button Content="Week" Style="{StaticResource SubtleButton}"
-                                Command="{Binding Timeline.ShowWeekCommand}" />
-                        <Button Content="&#xE76C;" Style="{StaticResource IconButton}" Width="30" Height="30"
-                                Command="{Binding Timeline.ShiftCommand}" CommandParameter="forward" ToolTip="Later" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
             <!-- ============================ Status bar ============================ -->
-            <Border Grid.Row="4" Background="{StaticResource BgBase}" Padding="18,8">
+            <Border Grid.Row="2" Background="{StaticResource BgBase}"
+                    BorderBrush="{StaticResource Stroke}" BorderThickness="0,1,0,0" Padding="18,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                               Text="{Binding StatusMessage}"
-                               Style="{StaticResource Micro}"
-                               TextTrimming="CharacterEllipsis"
-                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" Style="{StaticResource Micro}"
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <!-- A skip is a decision, not a fault; saying so keeps a static
-                             frame count from looking like a broken recorder. -->
-                        <TextBlock Style="{StaticResource Micro}"
-                                   Margin="0,0,16,0"
-                                   Foreground="{StaticResource TextTertiary}"
-                                   Text="{Binding SkipSummary}"
+                        <TextBlock Style="{StaticResource Micro}" Margin="0,0,16,0"
+                                   Foreground="{StaticResource TextTertiary}" Text="{Binding SkipSummary}"
                                    Visibility="{Binding SkippedCount, Converter={StaticResource CountToVisibility}}" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,16,0"
                                     Visibility="{Binding QueueDepth, Converter={StaticResource CountToVisibility}}">
                             <TextBlock Text="&#xE895;" FontFamily="{StaticResource IconFont}" FontSize="10"
                                        Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,6,0" />
-                            <TextBlock Style="{StaticResource Micro}"
-                                       Foreground="{StaticResource Accent}"
+                            <TextBlock Style="{StaticResource Micro}" Foreground="{StaticResource Accent}"
                                        Text="{Binding QueueDepth, StringFormat='{}{0:N0} reading'}" />
                         </StackPanel>
                         <TextBlock Style="{StaticResource Micro}" Text="{Binding StorageSummary}" />
@@ -693,14 +705,11 @@
             </Border>
 
             <!-- ============================ Settings overlay ============================ -->
-            <Grid Grid.Row="0" Grid.RowSpan="5"
-                  Background="#E605060A"
+            <Grid Grid.Row="0" Grid.RowSpan="3" Background="#E605060A"
                   Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}">
                 <Border Width="700" MaxHeight="760" Margin="28"
-                        Background="{StaticResource BgSurface}"
-                        BorderBrush="{StaticResource StrokeStrong}"
-                        BorderThickness="1"
-                        CornerRadius="14">
+                        Background="{StaticResource BgSurface}" BorderBrush="{StaticResource StrokeStrong}"
+                        BorderThickness="1" CornerRadius="14">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="48" ShadowDepth="10" Opacity="0.65" Color="Black" />
                     </Border.Effect>
@@ -708,65 +717,76 @@
                 </Border>
             </Grid>
 
-            <!-- ============================ First-run welcome ============================ -->
-            <Grid Grid.Row="0" Grid.RowSpan="5"
-                  Background="#F205060A"
-                  Visibility="{Binding IsWelcomeVisible, Converter={StaticResource BoolToVisibility}}">
-                <Border Width="560" Style="{StaticResource Card}" CornerRadius="16" Padding="38,34" VerticalAlignment="Center">
+            <!-- ============================ Guided walkthrough ============================ -->
+            <Grid Grid.Row="0" Grid.RowSpan="3" Background="#F205060A"
+                  Visibility="{Binding Tutorial.IsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border Width="580" Style="{StaticResource Card}" CornerRadius="18" Padding="40,36" VerticalAlignment="Center">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="60" ShadowDepth="12" Opacity="0.7" Color="Black" />
                     </Border.Effect>
+
                     <StackPanel>
-                        <Border Width="52" Height="52" CornerRadius="15"
-                                Background="{StaticResource AccentGradient}"
-                                HorizontalAlignment="Left">
-                            <TextBlock Text="&#xE81C;" FontFamily="{StaticResource IconFont}" FontSize="24"
-                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
+                        <Grid>
+                            <Border Width="54" Height="54" CornerRadius="16" HorizontalAlignment="Left"
+                                    Background="{StaticResource AccentGradient}">
+                                <TextBlock Text="{Binding Tutorial.Current.Glyph}" FontFamily="{StaticResource IconFont}"
+                                           FontSize="25" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="{Binding Tutorial.Progress}" Style="{StaticResource Micro}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Top" />
+                        </Grid>
 
-                        <TextBlock Text="A memory layer for your screen"
-                                   Style="{StaticResource Display}"
-                                   TextWrapping="Wrap"
-                                   Margin="0,22,0,0" />
+                        <TextBlock Text="{Binding Tutorial.Current.Title}" Style="{StaticResource Display}"
+                                   FontSize="25" TextWrapping="Wrap" Margin="0,24,0,0" />
 
-                        <TextBlock Style="{StaticResource Caption}"
-                                   TextWrapping="Wrap"
-                                   LineHeight="20"
-                                   Margin="0,10,0,0"
-                                   Text="RecallOS records what you see, reads the text on it, and makes all of it searchable. Everything is stored on this machine — there is no account, no sync and no telemetry." />
+                        <TextBlock Text="{Binding Tutorial.Current.Body}" Style="{StaticResource Caption}"
+                                   FontSize="14" TextWrapping="Wrap" LineHeight="22" Margin="0,14,0,0" />
 
-                        <Border Background="{StaticResource BgBase}" CornerRadius="10" Padding="16,14" Margin="0,22,0,0">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE722;" FontFamily="{StaticResource IconFont}" FontSize="13"
-                                               Foreground="{StaticResource Accent}" Margin="0,0,10,0" />
-                                    <TextBlock Style="{StaticResource Caption}" Foreground="{StaticResource TextPrimary}"
-                                               Text="Press Capture, or Ctrl+Shift+R from anywhere." />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                    <TextBlock Text="&#xE7C3;" FontFamily="{StaticResource IconFont}" FontSize="13"
-                                               Foreground="{StaticResource Accent}" Margin="0,0,10,0" />
-                                    <TextBlock Style="{StaticResource Caption}" Foreground="{StaticResource TextPrimary}"
-                                               TextWrapping="Wrap" MaxWidth="420"
-                                               Text="To search the text inside your captures, install a language pack once from Settings." />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                    <TextBlock Text="&#xE72E;" FontFamily="{StaticResource IconFont}" FontSize="13"
-                                               Foreground="{StaticResource Accent}" Margin="0,0,10,0" />
-                                    <TextBlock Style="{StaticResource Caption}" Foreground="{StaticResource TextPrimary}"
-                                               TextWrapping="Wrap" MaxWidth="420"
-                                               Text="Add apps you never want recorded to the exclusion list in Settings." />
-                                </StackPanel>
+                        <Border Background="{StaticResource BgBase}" CornerRadius="10" Padding="15,13" Margin="0,18,0,0"
+                                Visibility="{Binding Tutorial.Current.Detail, Converter={StaticResource NullToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE946;" FontFamily="{StaticResource IconFont}" FontSize="13"
+                                           Foreground="{StaticResource Accent}" VerticalAlignment="Top" Margin="0,1,11,0" />
+                                <TextBlock Text="{Binding Tutorial.Current.Detail}" Style="{StaticResource Micro}"
+                                           Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap"
+                                           MaxWidth="430" LineHeight="18" />
                             </StackPanel>
                         </Border>
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
-                            <Button Content="Open settings" Style="{StaticResource GhostButton}"
-                                    Command="{Binding OpenSettingsFromWelcomeCommand}" />
-                            <Button Content="Start using RecallOS" Style="{StaticResource PrimaryButton}"
-                                    Margin="10,0,0,0"
-                                    Command="{Binding DismissWelcomeCommand}" />
-                        </StackPanel>
+                        <Grid Margin="0,28,0,0">
+                            <ItemsControl ItemsSource="{Binding Tutorial.Steps}" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="7" Height="7" CornerRadius="4" Margin="0,0,7,0"
+                                                Background="{StaticResource StrokeStrong}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Skip" Style="{StaticResource SubtleButton}"
+                                        Command="{Binding Tutorial.SkipCommand}" />
+                                <Button Content="Back" Margin="8,0,0,0" Command="{Binding Tutorial.BackCommand}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Tutorial.IsFirst}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="{Binding Tutorial.Current.ActionLabel}"
+                                        Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+                                        Command="{Binding Tutorial.NextCommand}" />
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Border>
             </Grid>

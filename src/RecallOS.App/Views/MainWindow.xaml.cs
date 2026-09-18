@@ -43,7 +43,6 @@ public partial class MainWindow : Window
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         FitToWorkArea();
-        SearchBox.Focus();
 
         // A short fade-and-rise on first paint. Long enough to read as intentional, short
         // enough that it never delays someone who opened the window to search something.
@@ -105,6 +104,7 @@ public partial class MainWindow : Window
     {
         var maximized = WindowState == WindowState.Maximized;
 
+        // Restore and Maximise glyphs, as escapes so the source stays ASCII.
         MaximizeButton.Content = maximized ? "" : "";
         MaximizeButton.ToolTip = maximized ? "Restore" : "Maximise";
 
@@ -119,15 +119,24 @@ public partial class MainWindow : Window
     {
         base.OnPreviewKeyDown(e);
 
-        // The welcome overlay is modal in intent: let Escape dismiss it, and nothing else through.
-        if (_viewModel.IsWelcomeVisible)
+        // The walkthrough is modal in intent: arrow keys page through it, Escape leaves it,
+        // and nothing else reaches the app behind.
+        if (_viewModel.Tutorial.IsVisible)
         {
-            if (e.Key == Key.Escape)
+            switch (e.Key)
             {
-                _viewModel.DismissWelcomeCommand.Execute(null);
-                e.Handled = true;
+                case Key.Escape:
+                    _viewModel.Tutorial.SkipCommand.Execute(null);
+                    break;
+                case Key.Right or Key.Enter:
+                    _viewModel.Tutorial.NextCommand.Execute(null);
+                    break;
+                case Key.Left:
+                    _viewModel.Tutorial.BackCommand.Execute(null);
+                    break;
             }
 
+            e.Handled = true;
             return;
         }
 

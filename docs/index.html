@@ -21,60 +21,32 @@
 <style>
 /* ========================================================================
    Tokens — the same palette the desktop app uses, so the site and the
-   product read as one thing rather than a marketing page about a product.
+   product read as one thing rather than a page about a product.
    ======================================================================== */
 :root{
-  --bg:#08090c;
-  --surface:#0e1015;
-  --elevated:#14171e;
-  --hover:#1b1f29;
-  --active:#232834;
-  --stroke:#1e222c;
-  --stroke-strong:#2c3240;
-
-  --accent:#6366f1;
-  --accent-bright:#818cf8;
-  --accent-deep:#4f46e5;
-  --violet:#a855f7;
+  --bg:#08090c; --surface:#0e1015; --elevated:#14171e; --hover:#1b1f29; --active:#232834;
+  --stroke:#1e222c; --stroke-strong:#2c3240;
+  --accent:#6366f1; --accent-bright:#818cf8; --accent-deep:#4f46e5; --violet:#a855f7;
   --wash:rgba(99,102,241,.12);
-
-  --text:#f2f4f8;
-  --text-2:#9ba3b4;
-  --text-3:#636b7c;
-
-  --success:#34d399;
-  --warning:#fbbf24;
-  --danger:#f87171;
-
+  --text:#f2f4f8; --text-2:#9ba3b4; --text-3:#636b7c;
+  --success:#34d399; --warning:#fbbf24; --danger:#f87171;
   --grad:linear-gradient(120deg,var(--accent-deep),var(--accent) 45%,var(--violet));
-  --maxw:1180px;
-  --ease:cubic-bezier(.22,1,.36,1);
+  --maxw:1180px; --ease:cubic-bezier(.22,1,.36,1);
 }
-
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:Inter,'Segoe UI',system-ui,-apple-system,sans-serif;
-  font-size:16px;line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-}
+body{background:var(--bg);color:var(--text);font-family:Inter,'Segoe UI',system-ui,sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 code,kbd,.mono{font-family:'JetBrains Mono',Consolas,monospace}
 ::selection{background:rgba(99,102,241,.4)}
-
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 
 /* ---------- Nav ---------- */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  background:rgba(8,9,12,.62);
-  border-bottom:1px solid transparent;
-  transition:border-color .3s,background .3s;
-}
-nav.scrolled{border-bottom-color:var(--stroke);background:rgba(8,9,12,.85)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);background:rgba(8,9,12,.62);
+  border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+nav.scrolled{border-bottom-color:var(--stroke);background:rgba(8,9,12,.86)}
 .nav-in{display:flex;align-items:center;gap:14px;height:62px;max-width:var(--maxw);margin:0 auto;padding:0 24px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em}
 .mark{width:28px;height:28px;border-radius:8px;background:var(--grad);display:grid;place-items:center;flex:none;
@@ -82,18 +54,16 @@ nav.scrolled{border-bottom-color:var(--stroke);background:rgba(8,9,12,.85)}
 .mark svg{width:16px;height:16px}
 .pill{font-size:10px;font-weight:700;letter-spacing:.09em;padding:3px 8px;border-radius:5px;
   background:var(--active);color:var(--text-2)}
-.nav-links{margin-left:auto;display:flex;align-items:center;gap:28px}
+.nav-links{margin-left:auto;display:flex;align-items:center;gap:26px}
 .nav-links a{font-size:14px;color:var(--text-2);transition:color .2s}
 .nav-links a:hover{color:var(--text)}
-@media(max-width:860px){.nav-links a:not(.btn){display:none}}
+@media(max-width:980px){.nav-links a:not(.btn){display:none}}
 
 /* ---------- Buttons ---------- */
-.btn{
-  display:inline-flex;align-items:center;gap:9px;
-  padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;
-  border:1px solid var(--stroke);background:var(--elevated);color:var(--text);
-  cursor:pointer;position:relative;transition:transform .18s var(--ease),border-color .2s,background .2s;
-}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:10px;
+  font-size:14px;font-weight:600;border:1px solid var(--stroke);background:var(--elevated);
+  color:var(--text);cursor:pointer;position:relative;
+  transition:transform .18s var(--ease),border-color .2s,background .2s}
 .btn:hover{transform:translateY(-2px);border-color:var(--stroke-strong);background:var(--hover)}
 .btn-primary{background:var(--grad);border:none;color:#fff;box-shadow:0 6px 30px -6px rgba(99,102,241,.7)}
 .btn-primary:hover{box-shadow:0 10px 40px -6px rgba(99,102,241,.9)}
@@ -103,16 +73,12 @@ nav.scrolled{border-bottom-color:var(--stroke);background:rgba(8,9,12,.85)}
 /* ---------- Hero ---------- */
 header{position:relative;min-height:100svh;display:flex;align-items:center;padding:110px 0 70px;overflow:hidden}
 #scene{position:absolute;inset:0;z-index:0}
-/* Keeps text legible over the 3D field without hiding it. */
 .hero-veil{position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:
-    radial-gradient(1100px 620px at 18% 42%, rgba(8,9,12,.92), rgba(8,9,12,.46) 56%, transparent 80%),
-    linear-gradient(to bottom, rgba(8,9,12,.85), transparent 28%, transparent 62%, var(--bg));
-}
+  background:radial-gradient(1100px 620px at 18% 42%, rgba(8,9,12,.92), rgba(8,9,12,.46) 56%, transparent 80%),
+  linear-gradient(to bottom, rgba(8,9,12,.85), transparent 28%, transparent 62%, var(--bg))}
 .hero{position:relative;z-index:2;max-width:760px}
 .eyebrow{display:inline-flex;align-items:center;gap:9px;padding:6px 14px;border-radius:999px;
-  border:1px solid var(--stroke-strong);background:rgba(20,23,30,.72);font-size:12.5px;color:var(--text-2);
-  margin-bottom:26px}
+  border:1px solid var(--stroke-strong);background:rgba(20,23,30,.72);font-size:12.5px;color:var(--text-2);margin-bottom:26px}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 10px var(--success)}
 h1{font-size:clamp(42px,7.2vw,80px);line-height:1.02;letter-spacing:-.045em;font-weight:800}
 h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -125,26 +91,20 @@ h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:tex
 section{padding:110px 0;position:relative}
 .tag{font-size:11px;font-weight:700;letter-spacing:.17em;color:var(--accent-bright);margin-bottom:16px}
 h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;letter-spacing:-.035em;font-weight:700}
-.sub{color:var(--text-2);font-size:17px;margin-top:16px;max-width:620px;line-height:1.65}
+.sub{color:var(--text-2);font-size:17px;margin-top:16px;max-width:640px;line-height:1.65}
 
-/* ---------- Reveal on scroll ----------
-   Content is visible by default and only hidden once JS has confirmed it is
-   running (the .js class). Without that guard, a script error or an old
-   browser would leave the entire page below the hero permanently invisible —
-   an animation is not worth risking the content for. */
+/* Reveal: visible by default, hidden only once JS confirms it is running, so a
+   script error can never leave the page blank. */
 .rv{transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .js .rv{opacity:0;transform:translateY(26px)}
 .js .rv.in{opacity:1;transform:none}
 
-/* ---------- Feature grid ---------- */
+/* ---------- Cards ---------- */
 .grid{display:grid;gap:18px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.card{
-  padding:28px;border-radius:16px;border:1px solid var(--stroke);
+.card{padding:28px;border-radius:16px;border:1px solid var(--stroke);
   background:linear-gradient(180deg,var(--surface),rgba(8,9,12,.4));
-  position:relative;overflow:hidden;transition:border-color .3s,transform .3s var(--ease);
-}
+  position:relative;overflow:hidden;transition:border-color .3s,transform .3s var(--ease)}
 .card:hover{border-color:var(--stroke-strong);transform:translateY(-4px)}
-/* A soft light that follows the cursor across the card. */
 .card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;
   background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(99,102,241,.13),transparent 42%)}
 .card:hover::before{opacity:1}
@@ -157,20 +117,21 @@ h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;letter-spacing:-.035em;font-
 /* ---------- Search demo ---------- */
 .demo{border:1px solid var(--stroke);border-radius:18px;overflow:hidden;background:var(--surface);
   box-shadow:0 40px 90px -40px rgba(0,0,0,.9);margin-top:48px}
-.demo-bar{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--stroke);
-  background:var(--elevated)}
+.demo-bar{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--stroke);background:var(--elevated)}
 .tl{display:flex;gap:7px}
 .tl i{width:11px;height:11px;border-radius:50%;background:var(--active);display:block}
 .demo-title{font-size:12.5px;color:var(--text-3);margin-left:6px}
 .demo-body{padding:22px}
 .search-row{position:relative;display:flex;align-items:center}
-.search-row svg{position:absolute;left:15px;width:17px;height:17px;stroke:var(--text-3);pointer-events:none}
-#q{
-  width:100%;padding:14px 16px 14px 44px;border-radius:11px;
-  background:var(--bg);border:1px solid var(--stroke);color:var(--text);
-  font-size:15px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s;
-}
+.search-row>svg{position:absolute;left:15px;width:17px;height:17px;stroke:var(--text-3);pointer-events:none}
+#q{width:100%;padding:14px 16px 14px 44px;border-radius:11px;background:var(--bg);
+  border:1px solid var(--stroke);color:var(--text);font-size:15px;font-family:inherit;outline:none;
+  transition:border-color .2s,box-shadow .2s}
 #q:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(99,102,241,.16)}
+.modes{display:flex;gap:4px;margin-top:14px;padding:4px;border-radius:10px;background:var(--bg);
+  border:1px solid var(--stroke);width:max-content}
+.mode{font-size:12px;padding:6px 14px;border-radius:7px;cursor:pointer;color:var(--text-3);transition:all .2s}
+.mode.on{background:var(--active);color:var(--text);font-weight:600}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .chip{font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--stroke);
   background:var(--elevated);color:var(--text-2);cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace}
@@ -182,26 +143,31 @@ h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;letter-spacing:-.035em;font-
   background:var(--elevated);animation:pop .34s var(--ease) backwards}
 @keyframes pop{from{opacity:0;transform:translateY(9px)}}
 .hit:hover{border-color:var(--stroke-strong)}
-.thumb{width:104px;height:62px;border-radius:7px;flex:none;border:1px solid var(--stroke);overflow:hidden;position:relative;background:#0a0b0f}
+.thumb{width:104px;height:62px;border-radius:7px;flex:none;border:1px solid var(--stroke);overflow:hidden;background:#0a0b0f}
 .thumb canvas{width:100%;height:100%;display:block}
 .hit-main{min-width:0;flex:1}
 .hit-t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hit-m{display:flex;align-items:center;gap:8px;margin:5px 0 6px;font-size:11px;color:var(--text-3);flex-wrap:wrap}
 .badge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:4px;color:#0a0b0f}
-.snip{font-size:12.5px;color:var(--text-2);line-height:1.55;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.score{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-bright)}
+.snip{font-size:12.5px;color:var(--text-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
 mark{background:rgba(251,191,36,.34);color:#fde68a;border-radius:3px;padding:0 2px}
 .empty{display:grid;place-items:center;height:232px;color:var(--text-3);font-size:14px;text-align:center}
 
-/* ---------- Pipeline ---------- */
-.pipe{display:grid;gap:14px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
-.step{padding:24px;border-radius:15px;border:1px solid var(--stroke);background:var(--surface);position:relative}
+/* ---------- Pipeline 3D ---------- */
+.pipe-3d{margin-top:52px;border-radius:18px;border:1px solid var(--stroke);overflow:hidden;
+  background:var(--surface);position:relative}
+#flow{width:100%;height:340px;display:block}
+.flow-legend{display:flex;flex-wrap:wrap;gap:18px;padding:14px 20px;border-top:1px solid var(--stroke);
+  background:var(--elevated);font-size:12px;color:var(--text-3)}
+.flow-legend i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px}
+
+.pipe{display:grid;gap:14px;margin-top:22px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.step{padding:24px;border-radius:15px;border:1px solid var(--stroke);background:var(--surface)}
 .step .n{font-size:11px;font-weight:700;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;margin-bottom:12px}
 .step h4{font-size:15px;margin-bottom:8px;font-weight:650}
 .step p{font-size:13.5px;color:var(--text-2);line-height:1.6}
-.step::after{content:'';position:absolute;right:-8px;top:50%;width:14px;height:1px;background:var(--stroke-strong)}
-.step:last-child::after{display:none}
-@media(max-width:840px){.step::after{display:none}}
 
 /* ---------- Shots ---------- */
 .shots{display:grid;gap:20px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
@@ -209,20 +175,50 @@ figure{border-radius:15px;overflow:hidden;border:1px solid var(--stroke);backgro
 figure img{width:100%;display:block}
 figcaption{padding:14px 17px;font-size:12.5px;color:var(--text-3);border-top:1px solid var(--stroke)}
 
-/* ---------- Privacy ---------- */
+/* ---------- Privacy / numbers ---------- */
 .priv{display:grid;gap:16px;margin-top:48px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
 .pv{display:flex;gap:14px;padding:22px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface)}
 .pv svg{width:19px;height:19px;stroke:var(--success);flex:none;margin-top:2px}
 .pv b{display:block;font-size:14.5px;margin-bottom:5px;font-weight:620}
 .pv span{font-size:13.5px;color:var(--text-2);line-height:1.6}
-
-/* ---------- Numbers ---------- */
 .nums{display:grid;gap:16px;margin-top:48px;grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
 .num{padding:26px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface);text-align:center}
-.num b{display:block;font-size:34px;font-weight:750;letter-spacing:-.03em;
-  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
-  font-variant-numeric:tabular-nums}
+.num b{display:block;font-size:34px;font-weight:750;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .num span{font-size:12.5px;color:var(--text-3)}
+
+/* ---------- Shortcuts ---------- */
+.keys{display:grid;gap:10px;margin-top:44px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.key{display:flex;align-items:center;gap:14px;padding:15px 18px;border-radius:12px;
+  border:1px solid var(--stroke);background:var(--surface)}
+kbd{font-size:11.5px;padding:5px 9px;border-radius:6px;background:var(--active);
+  border:1px solid var(--stroke-strong);color:var(--text);white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.key span{font-size:13.5px;color:var(--text-2)}
+
+/* ---------- Roadmap ---------- */
+.road{margin-top:50px;position:relative;padding-left:30px}
+.road::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(to bottom,var(--accent),rgba(99,102,241,.05))}
+.rd{position:relative;padding:0 0 30px 0}
+.rd::before{content:'';position:absolute;left:-30px;top:5px;width:16px;height:16px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--stroke-strong)}
+.rd.done::before{border-color:var(--accent);background:var(--accent);box-shadow:0 0 16px rgba(99,102,241,.8)}
+.rd b{display:block;font-size:15.5px;margin-bottom:5px;font-weight:650}
+.rd .when{font-size:10.5px;font-weight:700;letter-spacing:.11em;margin-bottom:7px;color:var(--text-3)}
+.rd.done .when{color:var(--accent-bright)}
+.rd p{font-size:14px;color:var(--text-2);line-height:1.6;max-width:560px}
+
+/* ---------- FAQ ---------- */
+.faq{margin-top:44px;border-top:1px solid var(--stroke)}
+details{border-bottom:1px solid var(--stroke)}
+summary{padding:20px 0;cursor:pointer;font-size:16px;font-weight:600;list-style:none;
+  display:flex;align-items:center;gap:14px;transition:color .2s}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';margin-left:auto;font-size:20px;color:var(--text-3);
+  font-weight:400;transition:transform .25s var(--ease)}
+details[open] summary::after{transform:rotate(45deg);color:var(--accent-bright)}
+summary:hover{color:var(--accent-bright)}
+details p{padding:0 0 22px 0;color:var(--text-2);font-size:14.5px;line-height:1.7;max-width:720px}
 
 /* ---------- Download ---------- */
 .dl{text-align:center;padding:66px 32px;border-radius:22px;position:relative;overflow:hidden;
@@ -230,9 +226,8 @@ figcaption{padding:14px 17px;font-size:12.5px;color:var(--text-3);border-top:1px
   background:radial-gradient(900px 420px at 50% -10%,rgba(99,102,241,.2),transparent 62%),var(--surface)}
 .dl h2{margin-bottom:16px}
 .dl .sub{margin:0 auto 32px}
-.note{margin-top:26px;font-size:12.5px;color:var(--text-3);max-width:520px;margin-inline:auto;line-height:1.65}
+.note{margin-top:26px;font-size:12.5px;color:var(--text-3);max-width:540px;margin-inline:auto;line-height:1.65}
 
-/* ---------- Footer ---------- */
 footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);font-size:13.5px}
 .foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
 .foot a{color:var(--text-2)}
@@ -240,7 +235,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
 
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-  .rv{opacity:1;transform:none}
+  .js .rv{opacity:1;transform:none}
 }
 </style>
 </head>
@@ -250,13 +245,14 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
   <div class="nav-in">
     <a href="#" class="brand">
       <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2"/><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/></svg></span>
-      RecallOS <span class="pill">LOCAL</span>
+      RecallOS <span class="pill">v1.0</span>
     </a>
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#demo">Search</a>
       <a href="#privacy">Privacy</a>
-      <a href="https://github.com/anshppatel4-crypto/recallos">GitHub</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
       <a class="btn btn-primary" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">Download</a>
     </div>
   </div>
@@ -267,7 +263,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
   <div class="hero-veil"></div>
   <div class="wrap">
     <div class="hero">
-      <div class="eyebrow"><span class="dot"></span> Runs entirely on your machine</div>
+      <div class="eyebrow"><span class="dot"></span> Version 1.0 out now — more coming</div>
       <h1>A memory layer<br/>for your <span class="grad">screen</span>.</h1>
       <p class="lede">
         RecallOS records what you see, reads the text on it, and makes every moment
@@ -278,16 +274,16 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
           Download for Windows
         </a>
-        <a class="btn btn-lg" href="https://github.com/anshppatel4-crypto/recallos">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.999 4.3 19 4.6 19 4.6c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5z"/></svg>
-          View source
+        <a class="btn btn-lg" href="#demo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Try the search
         </a>
       </div>
       <div class="meta">
         <span><b>68 MB</b> · self-contained</span>
         <span><b>No</b> .NET install needed</span>
         <span><b>135</b> tests passing</span>
-        <span><b>MIT</b> licensed</span>
+        <span><b>100%</b> local</span>
       </div>
     </div>
   </div>
@@ -303,6 +299,18 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
         starts a loop that keeps going until you stop it.
       </p>
     </div>
+
+    <!-- A live 3D view of a frame moving through the pipeline. -->
+    <div class="pipe-3d rv">
+      <canvas id="flow"></canvas>
+      <div class="flow-legend">
+        <span><i style="background:#6366f1"></i>Frame captured</span>
+        <span><i style="background:#34d399"></i>Text extracted</span>
+        <span><i style="background:#fbbf24"></i>Chunked &amp; embedded</span>
+        <span><i style="background:#a855f7"></i>Indexed &amp; searchable</span>
+      </div>
+    </div>
+
     <div class="pipe">
       <div class="step rv"><div class="n">01</div><h4>Capture</h4><p>Win32 <span class="mono">BitBlt</span> over the virtual screen, a single monitor, or just the focused window. DPI-aware, so scaled displays stay sharp.</p></div>
       <div class="step rv"><div class="n">02</div><h4>Extract</h4><p>Tesseract reads the text with per-word geometry, on a background queue. A frame is visible the instant it is captured, long before its text arrives.</p></div>
@@ -319,7 +327,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
       <h2>Type what you half-remember.</h2>
       <p class="sub">
         A live mock-up of the real query syntax, running on sample frames. Filters,
-        phrases and dates work exactly as they do in the app.
+        phrases, dates and the three ranking modes all behave as they do in the app.
       </p>
     </div>
 
@@ -333,6 +341,11 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           <input id="q" placeholder="Search everything you have seen…" autocomplete="off" spellcheck="false" />
         </div>
+        <div class="modes" id="modes">
+          <span class="mode on" data-m="hybrid">Hybrid</span>
+          <span class="mode" data-m="words">Words</span>
+          <span class="mode" data-m="meaning">Meaning</span>
+        </div>
         <div class="chips" id="chips"></div>
         <div class="stat" id="stat"></div>
         <div class="res" id="res"></div>
@@ -343,10 +356,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
 
 <section>
   <div class="wrap">
-    <div class="rv">
-      <div class="tag">CAPABILITIES</div>
-      <h2>Built like a system component.</h2>
-    </div>
+    <div class="rv"><div class="tag">CAPABILITIES</div><h2>Built like a system component.</h2></div>
     <div class="grid" id="cards"></div>
   </div>
 </section>
@@ -365,6 +375,13 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <div class="rv"><div class="tag">SHORTCUTS</div><h2>Built for the keyboard.</h2></div>
+    <div class="keys" id="keys"></div>
+  </div>
+</section>
+
 <section id="privacy">
   <div class="wrap">
     <div class="rv">
@@ -380,6 +397,24 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
   </div>
 </section>
 
+<section id="roadmap">
+  <div class="wrap">
+    <div class="rv">
+      <div class="tag">ROADMAP</div>
+      <h2>Version 1 is the beginning.</h2>
+      <p class="sub">v1.0 is out and complete. Here is what it already does, and what is being built next.</p>
+    </div>
+    <div class="road rv" id="road"></div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="rv"><div class="tag">FAQ</div><h2>Questions worth asking.</h2></div>
+    <div class="faq rv" id="faqs"></div>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <div class="dl rv">
@@ -388,14 +423,13 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
       <div class="cta" style="justify-content:center">
         <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-          Download for Windows
+          Download RecallOS 1.0
         </a>
-        <a class="btn btn-lg" href="https://github.com/anshppatel4-crypto/recallos#building-from-source">Build from source</a>
       </div>
       <p class="note">
-        Windows 10 or 11. Windows will warn about an unrecognised publisher because the
-        build is not code-signed — choose <b>More info → Run anyway</b>. Reading the text
-        inside captures needs a one-click language pack, installed from Settings.
+        Windows 10 or 11 · 68 MB · Windows will warn about an unrecognised publisher because
+        the build is not code-signed — choose <b>More info → Run anyway</b>. The app walks you
+        through setup on first launch.
       </p>
     </div>
   </div>
@@ -403,8 +437,8 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
 
 <footer>
   <div class="wrap foot">
-    <span>RecallOS — MIT licensed. Your data never leaves your machine.</span>
-    <span><a href="https://github.com/anshppatel4-crypto/recallos">GitHub</a> · <a href="https://github.com/anshppatel4-crypto/recallos/releases/latest">Releases</a> · <a href="https://github.com/anshppatel4-crypto/recallos/issues">Issues</a></span>
+    <span>© 2026 RecallOS. All rights reserved. Your data never leaves your machine.</span>
+    <span><a href="https://github.com/anshppatel4-crypto/recallos/releases/latest">Download</a> · <a href="#faq">FAQ</a> · <a href="#privacy">Privacy</a></span>
   </div>
 </footer>
 
@@ -415,17 +449,11 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
 <script type="module">
 import * as THREE from 'three';
 
-/* =======================================================================
-   Hero: a drifting field of captured frames.
-
-   Each plane is a procedurally drawn "screenshot" — a window with a title
-   bar and text lines, in the app's own palette. Nothing real is shipped,
-   and the field reads immediately as "many moments of a screen, stacked
-   in time", which is the product in one image.
-   ======================================================================= */
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const host = document.getElementById('scene');
 
+/* Procedural "screenshot" texture — a window with a title bar and text lines,
+   in the app's palette. Nothing real is shipped, and the field reads instantly
+   as "many moments of a screen". */
 function frameTexture(seed){
   const c = document.createElement('canvas');
   c.width = 384; c.height = 240;
@@ -435,11 +463,8 @@ function frameTexture(seed){
 
   g.fillStyle = '#0e1015'; g.fillRect(0,0,384,240);
   g.fillStyle = '#14171e'; g.fillRect(0,0,384,26);
-  ['#f87171','#fbbf24','#34d399'].forEach((col,i)=>{
-    g.fillStyle = col; g.beginPath(); g.arc(16+i*15,13,4,0,7); g.fill();
-  });
+  ['#f87171','#fbbf24','#34d399'].forEach((col,i)=>{ g.fillStyle=col; g.beginPath(); g.arc(16+i*15,13,4,0,7); g.fill(); });
 
-  // Accent block: a sidebar, a hero panel, or a code gutter.
   const kind = Math.floor(rnd()*3);
   g.fillStyle = 'rgba(99,102,241,.22)';
   if(kind===0) g.fillRect(0,26,74,214);
@@ -459,95 +484,196 @@ function frameTexture(seed){
   return t;
 }
 
-let renderer, camera, scene, planes = [], raf = 0;
+/* ============ Hero: a drifting field of captured frames ============ */
+(function hero(){
+  const host = document.getElementById('scene');
+  let renderer, camera, scene, planes = [], raf = 0;
 
-function initScene(){
-  scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x08090c, 0.052);
+  try{
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x08090c, 0.052);
+    camera = new THREE.PerspectiveCamera(58, host.clientWidth/host.clientHeight, 0.1, 120);
+    camera.position.set(0,0,17);
 
-  camera = new THREE.PerspectiveCamera(58, host.clientWidth/host.clientHeight, 0.1, 120);
-  camera.position.set(0,0,17);
+    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(host.clientWidth, host.clientHeight);
+    host.appendChild(renderer.domElement);
 
-  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(host.clientWidth, host.clientHeight);
-  host.appendChild(renderer.domElement);
+    const COUNT = innerWidth < 760 ? 16 : 30;
+    const geo = new THREE.PlaneGeometry(4.1, 2.56);
+    for(let i=0;i<COUNT;i++){
+      const mat = new THREE.MeshBasicMaterial({ map:frameTexture(i+1), transparent:true, opacity:.96,
+        side:THREE.DoubleSide, depthWrite:false });
+      const m = new THREE.Mesh(geo, mat);
+      const a = i*2.39, r = 5.2 + (i%5)*1.9;
+      m.position.set(Math.cos(a)*r, Math.sin(a)*r*0.56, -i*3.1);
+      m.rotation.set(-0.08 + Math.sin(i)*0.09, a*0.16, Math.sin(a)*0.05);
+      m.userData.spin = (Math.random()-.5)*0.0016;
+      scene.add(m); planes.push(m);
+    }
 
-  const COUNT = innerWidth < 760 ? 16 : 30;
-  const geo = new THREE.PlaneGeometry(4.1, 2.56);
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(90,60),
+      new THREE.MeshBasicMaterial({ color:0x4f46e5, transparent:true, opacity:.055, depthWrite:false }));
+    glow.position.z = -52; scene.add(glow);
 
-  for(let i=0;i<COUNT;i++){
-    const mat = new THREE.MeshBasicMaterial({
-      map: frameTexture(i+1), transparent:true, opacity:.96,
-      side: THREE.DoubleSide, depthWrite:false
+    let mx=0,my=0,tx=0,ty=0;
+    addEventListener('pointermove', e=>{ tx=e.clientX/innerWidth-.5; ty=e.clientY/innerHeight-.5; }, {passive:true});
+
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      mx += (tx-mx)*0.045; my += (ty-my)*0.045;
+      for(const m of planes){
+        m.position.z += 0.021; m.rotation.z += m.userData.spin;
+        if(m.position.z > 15) m.position.z -= 30*3.1;
+      }
+      camera.position.x += (mx*3.1 - camera.position.x)*0.05;
+      camera.position.y += (-my*2.1 - camera.position.y)*0.05;
+      camera.lookAt(0,0,-14);
+      renderer.render(scene,camera);
+    };
+
+    addEventListener('resize', ()=>{
+      camera.aspect = host.clientWidth/host.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(host.clientWidth, host.clientHeight);
     });
-    const m = new THREE.Mesh(geo, mat);
 
-    // A loose helix so the field has depth without looking like a grid.
-    const a = i * 2.39, r = 5.2 + (i % 5) * 1.9;
-    m.position.set(Math.cos(a)*r, Math.sin(a)*r*0.56, -i*3.1);
-    m.rotation.set(-0.08 + Math.sin(i)*0.09, a*0.16, Math.sin(a)*0.05);
-    m.userData.spin = (Math.random()-.5)*0.0016;
-    scene.add(m); planes.push(m);
-  }
+    if(reduced) renderer.render(scene,camera); else tick();
+    new IntersectionObserver(es=>{
+      const vis = es[0].isIntersecting;
+      if(vis && !raf && !reduced) tick();
+      else if(!vis && raf){ cancelAnimationFrame(raf); raf = 0; }
+    },{threshold:0}).observe(document.querySelector('header'));
+  }catch(err){ console.warn('hero 3D unavailable:', err); }
+})();
 
-  // A faint glow behind everything, so the planes read as lit rather than flat.
-  const glow = new THREE.Mesh(
-    new THREE.PlaneGeometry(90, 60),
-    new THREE.MeshBasicMaterial({ color:0x4f46e5, transparent:true, opacity:.055, depthWrite:false })
-  );
-  glow.position.z = -52;
-  scene.add(glow);
-}
+/* ============ Pipeline: a frame travelling through the four stages ============
+   Four stations on a rail. A screenshot plane moves between them and changes
+   colour as it is captured, read, embedded and indexed — the architecture
+   diagram as something you watch rather than read.
+   ============================================================================ */
+(function flow(){
+  const canvas = document.getElementById('flow');
+  if(!canvas) return;
 
-let mx=0, my=0, tx=0, ty=0;
-addEventListener('pointermove', e => {
-  tx = (e.clientX/innerWidth - .5);
-  ty = (e.clientY/innerHeight - .5);
-}, {passive:true});
+  try{
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0e1015, 18, 46);
 
-function tick(){
-  raf = requestAnimationFrame(tick);
-  mx += (tx-mx)*0.045; my += (ty-my)*0.045;
+    const w = canvas.clientWidth || 900, h = 340;
+    const camera = new THREE.PerspectiveCamera(46, w/h, 0.1, 100);
+    camera.position.set(0, 3.4, 15.5);
+    camera.lookAt(0, -0.2, 0);
 
-  for(const m of planes){
-    m.position.z += 0.021;
-    m.rotation.z += m.userData.spin;
-    // Recycle to the back once a plane passes the camera: an endless field
-    // from a fixed, small number of meshes.
-    if(m.position.z > 15){ m.position.z -= 30*3.1; }
-  }
-  camera.position.x += (mx*3.1 - camera.position.x)*0.05;
-  camera.position.y += (-my*2.1 - camera.position.y)*0.05;
-  camera.lookAt(0,0,-14);
-  renderer.render(scene, camera);
-}
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(w, h, false);
 
-function resize(){
-  if(!renderer) return;
-  camera.aspect = host.clientWidth/host.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(host.clientWidth, host.clientHeight);
-}
-addEventListener('resize', resize);
+    const COLORS = [0x6366f1, 0x34d399, 0xfbbf24, 0xa855f7];
+    const XS = [-9, -3, 3, 9];
 
-try{
-  initScene();
-  if(reduced){ renderer.render(scene,camera); } else { tick(); }
-  // The hero is fixed behind the page; stop rendering once it scrolls away.
-  new IntersectionObserver(es=>{
-    const vis = es[0].isIntersecting;
-    if(vis && !raf && !reduced) tick();
-    else if(!vis && raf){ cancelAnimationFrame(raf); raf = 0; }
-  },{threshold:0}).observe(document.querySelector('header'));
-}catch(err){
-  // WebGL unavailable: the veil gradient alone still looks intentional.
-  console.warn('3D scene unavailable:', err);
-}
+    // Stations: a ring plus a pad for each stage.
+    XS.forEach((x,i)=>{
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(1.5, 0.05, 10, 48),
+        new THREE.MeshBasicMaterial({ color:COLORS[i], transparent:true, opacity:.55 })
+      );
+      ring.position.set(x, 0, 0); ring.rotation.x = Math.PI/2;
+      scene.add(ring);
+
+      const pad = new THREE.Mesh(
+        new THREE.CircleGeometry(1.45, 40),
+        new THREE.MeshBasicMaterial({ color:COLORS[i], transparent:true, opacity:.08 })
+      );
+      pad.position.set(x, -0.02, 0); pad.rotation.x = -Math.PI/2;
+      scene.add(pad);
+    });
+
+    // The rail between stations.
+    const rail = new THREE.Mesh(
+      new THREE.BoxGeometry(20, 0.02, 0.06),
+      new THREE.MeshBasicMaterial({ color:0x2c3240 })
+    );
+    rail.position.y = -0.01; scene.add(rail);
+
+    // The travelling frame.
+    const frame = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.5, 1.56),
+      new THREE.MeshBasicMaterial({ map:frameTexture(7), transparent:true, side:THREE.DoubleSide })
+    );
+    frame.position.set(XS[0], 1.5, 0);
+    scene.add(frame);
+
+    // A halo that takes the colour of the stage the frame is at.
+    const halo = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.6, 2.6),
+      new THREE.MeshBasicMaterial({ color:COLORS[0], transparent:true, opacity:.22, depthWrite:false })
+    );
+    scene.add(halo);
+
+    // Particles trailing the frame: the text streaming out of it.
+    const N = 160;
+    const pg = new THREE.BufferGeometry();
+    const pos = new Float32Array(N*3), seed = new Float32Array(N);
+    for(let i=0;i<N;i++){ pos[i*3]=0; pos[i*3+1]=0; pos[i*3+2]=0; seed[i]=Math.random(); }
+    pg.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const pts = new THREE.Points(pg, new THREE.PointsMaterial({
+      color:0x818cf8, size:0.07, transparent:true, opacity:.75, depthWrite:false
+    }));
+    scene.add(pts);
+
+    let t = 0, raf = 0;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      t += 0.0042;
+      const p = t % 1;                       // 0..1 across the whole rail
+      const seg = Math.min(3, Math.floor(p * 3.999));
+      const local = (p * 3.999) - seg;
+
+      const x = XS[seg] + (XS[Math.min(3,seg+1)] - XS[seg]) * local;
+      frame.position.x = x;
+      frame.position.y = 1.5 + Math.sin(p * Math.PI * 6) * 0.12;
+      frame.rotation.y = Math.sin(t*2.2) * 0.22;
+
+      halo.position.copy(frame.position);
+      halo.position.z = -0.05;
+      halo.material.color.setHex(COLORS[seg]);
+      halo.material.opacity = 0.18 + Math.sin(t*7)*0.05;
+
+      // Particles drift down and back from the frame, recycling continuously.
+      const arr = pg.attributes.position.array;
+      for(let i=0;i<N;i++){
+        const life = (t*0.9 + seed[i]) % 1;
+        arr[i*3]   = x - life*3.6 + (seed[i]-.5)*0.5;
+        arr[i*3+1] = 1.5 - life*1.7 + Math.sin(life*9 + seed[i]*6)*0.16;
+        arr[i*3+2] = (seed[i]-.5)*1.1;
+      }
+      pg.attributes.position.needsUpdate = true;
+      pts.material.color.setHex(COLORS[seg]);
+
+      renderer.render(scene, camera);
+    };
+
+    const resize = () => {
+      const ww = canvas.clientWidth;
+      camera.aspect = ww/h; camera.updateProjectionMatrix();
+      renderer.setSize(ww, h, false);
+    };
+    addEventListener('resize', resize); resize();
+
+    if(reduced){ renderer.render(scene,camera); }
+    else {
+      new IntersectionObserver(es=>{
+        if(es[0].isIntersecting && !raf) tick();
+        else if(!es[0].isIntersecting && raf){ cancelAnimationFrame(raf); raf=0; }
+      },{threshold:.05}).observe(canvas);
+    }
+  }catch(err){ console.warn('pipeline 3D unavailable:', err); canvas.style.display='none'; }
+})();
 </script>
 
 <script>
-/* ---------- Nav state + reveal ---------- */
 const nav = document.getElementById('nav');
 addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 12), {passive:true});
 
@@ -555,14 +681,17 @@ const io = new IntersectionObserver(es => {
   es.forEach((e,i) => { if(e.isIntersecting){ e.target.style.transitionDelay = `${Math.min(i*60,240)}ms`; e.target.classList.add('in'); io.unobserve(e.target);} });
 }, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
 
-/* ---------- Feature cards ---------- */
+/* ---------- Cards ---------- */
 const FEATURES = [
   ['Continuous recording','Press Record and it keeps capturing until you press Pause — on an interval you choose, from every 2 seconds upward. A live countdown shows it is still working.','M12 7v5l3 2 M3 12a9 9 0 1 0 2.6-6.4 M3 4v5h5'],
   ['Reads your screen','Tesseract OCR extracts the text with per-word geometry, on a background queue so capture never stalls waiting for recognition.','M4 7V4h16v3 M9 20h6 M12 4v16'],
   ['Hybrid retrieval','BM25 keyword matching over SQLite FTS5, cosine similarity over chunk embeddings, and a normalised blend — because the two fail in opposite directions.','M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4.3-4.3'],
   ['Replay any moment','Step frame by frame through time and see the original screenshot beside the text that was on it.','M4 5h16v11H4z M8 20h8 M10 9l5 2.5-5 2.5z'],
   ['Activity timeline','A scrubable histogram of your day, coloured by what you were doing — reading, coding, writing, in a call.','M3 20h18 M6 16v-5 M11 16V6 M16 16v-8 M21 16v-3'],
+  ['Guided setup','A first-run walkthrough explains what gets recorded, helps you switch on text search, and sets your exclusions before anything is captured.','M12 2l3 6 6 1-4.5 4.3 1 6.2-5.5-3-5.5 3 1-6.2L4 9l6-1z'],
+  ['Exclusion lists','Name a process or a window title and it is never captured — checked before the screen is read, and again against what was actually in front.','M5 11V8a7 7 0 0 1 14 0v3 M4 11h16v10H4z M12 15v3'],
   ['Bounded by design','Age and size caps prune the oldest frames automatically, so it can never quietly fill the disk it runs on.','M5 8h14l-1 12H6L5 8z M9 8V5h6v3 M10 12v5 M14 12v5'],
+  ['Global hotkey','Ctrl+Shift+R captures from anywhere, even when the window is closed and RecallOS is sitting in the notification area.','M2 6h20v12H2z M6 10h.01 M10 10h.01 M14 10h.01 M18 10h.01 M8 14h8'],
 ];
 document.getElementById('cards').innerHTML = FEATURES.map(([t,d,p]) => `
   <div class="card rv">
@@ -570,59 +699,94 @@ document.getElementById('cards').innerHTML = FEATURES.map(([t,d,p]) => `
     <h3>${t}</h3><p>${d}</p>
   </div>`).join('');
 
-document.querySelectorAll('.card').forEach(c => {
-  c.addEventListener('pointermove', e => {
-    const r = c.getBoundingClientRect();
-    c.style.setProperty('--mx', `${e.clientX-r.left}px`);
-    c.style.setProperty('--my', `${e.clientY-r.top}px`);
-  });
-});
+document.querySelectorAll('.card').forEach(c => c.addEventListener('pointermove', e => {
+  const r = c.getBoundingClientRect();
+  c.style.setProperty('--mx', `${e.clientX-r.left}px`);
+  c.style.setProperty('--my', `${e.clientY-r.top}px`);
+}));
+
+/* ---------- Shortcuts ---------- */
+document.getElementById('keys').innerHTML = [
+  ['Ctrl + Shift + R','Capture from anywhere'],
+  ['Ctrl + F','Jump to search'],
+  ['Alt + ← / →','Step through time'],
+  ['Ctrl + Delete','Delete the selected frame'],
+  ['F5','Refresh results and timeline'],
+  ['Esc','Back to the search box'],
+].map(([k,d]) => `<div class="key rv"><kbd>${k}</kbd><span>${d}</span></div>`).join('');
 
 /* ---------- Privacy + numbers ---------- */
 const CHECK = 'M20 6L9 17l-5-5';
 document.getElementById('priv').innerHTML = [
-  ['Nothing is uploaded','No account, no sync, no telemetry. The only outbound request in the whole codebase downloads a language pack, and only when you press the button.'],
+  ['Nothing is uploaded','No account, no sync, no telemetry. The only outbound request in the whole app downloads a language pack, and only when you press the button.'],
   ['Exclusions are absolute','Name a process or a window-title phrase and it is checked before the screen is read, then again against the window that was actually in front. Those frames never touch the disk.'],
   ['Off until you say so','Recording starts paused. It pauses again when you step away, and refuses to capture a locked session or a secure desktop.'],
   ['Erase means erase','One button deletes every frame, its text, its index and its images, then reclaims the space. Or just delete the folder.'],
 ].map(([t,d]) => `<div class="pv rv"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${CHECK}"/></svg><div><b>${t}</b><span>${d}</span></div></div>`).join('');
 
 document.getElementById('nums').innerHTML = [
-  ['135','tests passing'],['0','bytes uploaded'],['13k','lines of C#'],['MIT','licensed'],
+  ['135','tests passing'],['0','bytes uploaded'],['13k','lines of code'],['68 MB','one download'],
 ].map(([n,l]) => `<div class="num rv"><b>${n}</b><span>${l}</span></div>`).join('');
 
-/* =======================================================================
-   Search demo
+/* ---------- Roadmap ---------- */
+document.getElementById('road').innerHTML = [
+  [true,'SHIPPED · v1.0','Capture, read, search, replay','Continuous recording, Tesseract OCR, hybrid keyword and semantic search, the activity timeline, exclusion lists, retention caps and a guided first run.'],
+  [false,'NEXT','Smarter recall','Sentence-transformer embeddings for true semantic search, so "the thing about billing" finds the page that never used the word.'],
+  [false,'NEXT','Workflow reconstruction','Group related frames into sessions automatically, so you can replay a whole task rather than a single moment.'],
+  [false,'LATER','Ask your history','Put a question to your own screen history and get an answer with the frames it came from, still without anything leaving the machine.'],
+  [false,'LATER','Per-window capture','Windows.Graphics.Capture for composited per-window frames, so an occluded window still records cleanly.'],
+].map(([done,when,title,body]) => `
+  <div class="rd ${done?'done':''} rv">
+    <div class="when">${when}</div><b>${title}</b><p>${body}</p>
+  </div>`).join('');
 
-   A faithful mock of the real query language: bare words match text and
-   titles, "quoted" runs match as a phrase, and app: / title: / after:
-   narrow the set. Scoring is deliberately simple — the point is to show
-   the syntax and the result shape, not to reimplement BM25 in the browser.
+/* ---------- FAQ ---------- */
+document.getElementById('faqs').innerHTML = [
+  ['Does anything I record leave my computer?','No. There is no account, no sync and no telemetry. The single outbound request in the entire application downloads an OCR language pack from the Tesseract project, and only when you press the Install button in Settings. Everything else — screenshots, extracted text, the search index — is written to %LOCALAPPDATA%\\RecallOS on your machine and read from there.'],
+  ['How much disk does it use?','A frame is a few hundred kilobytes, so continuous recording is roughly a gigabyte a day at the default ten-second interval. Two caps keep that bounded: frames older than 30 days are removed, and the store is held under 20 GB by evicting the oldest first. Both limits are adjustable, and either can be switched off.'],
+  ['Why does Windows warn me when I run it?','The build is not code-signed, so SmartScreen shows an "unrecognised publisher" warning for any new application. Choose More info, then Run anyway. Code signing certificates are expensive for an independent release; this is the normal experience for one.'],
+  ['Why does search find nothing at first?','Reading the text inside your captures needs a Tesseract language pack, which is too large to bundle in the download. Install it in one click from Settings → Text extraction. Frames captured before then are not lost — they are held as pending, and become searchable retroactively the moment the pack arrives.'],
+  ['Can I stop it recording particular apps?','Yes, and this is the control the design takes most seriously. Add a process name or a window-title phrase to the exclusion lists in Settings. Both are checked before the screen is read, and again against the window that was actually in front at the instant of capture, so an excluded window never reaches the disk.'],
+  ['What happens when I close the window?','It keeps recording and moves to the notification area, so closing the window does not silently stop your history. The tray icon is always visible while it runs, and stopping it is one click from there. You can turn that behaviour off in Settings.'],
+  ['Does it slow my computer down?','Capture takes tens of milliseconds and text extraction runs on a background queue at below-normal priority, so the expensive half never blocks the responsive half. Recording also pauses automatically when you step away, and refuses to run on a locked session.'],
+  ['Is the source code available?','No. RecallOS is proprietary software. You are licensed to install and use the application; the source is not distributed.'],
+].map(([q,a]) => `<details class="rv"><summary>${q}</summary><p>${a}</p></details>`).join('');
+
+/* =======================================================================
+   Search demo — a faithful mock of the real query language.
    ======================================================================= */
 const APPS = { chrome:'#8a93a6', code:'#5a9bf5', slack:'#e88b4c', figma:'#f06ea8', excel:'#e8c44c', terminal:'#4ec9b0' };
 const FRAMES = [
   { t:'Quarterly revenue projections — Northwind.xlsx', app:'excel', intent:'Analyzing', ago:'12 min ago', days:0,
-    text:'Quarterly revenue projections for Northwind. Q3 total 1,284,000 up 14% year on year. Renewals ahead of forecast; churn down to 2.1%. Board review scheduled Thursday.' },
+    text:'Quarterly revenue projections for Northwind. Q3 total 1,284,000 up 14% year on year. Renewals ahead of forecast; churn down to 2.1%. Board review scheduled Thursday.',
+    concepts:'money finance revenue sales numbers forecast budget accounting income' },
   { t:'CapturePipeline.cs — RecallOS — Visual Studio Code', app:'code', intent:'Coding', ago:'38 min ago', days:0,
-    text:'public async Task<CaptureOutcome> CaptureAsync(CaptureRequest request) — the synchronous stage does only what makes the moment durable: capture, hash, write the file, insert the row, and return.' },
+    text:'public async Task<CaptureOutcome> CaptureAsync(CaptureRequest request) — the synchronous stage does only what makes the moment durable: capture, hash, write the file, insert the row, and return.',
+    concepts:'programming code software development engineering function class build' },
   { t:'#deploys — Acme — Slack', app:'slack', intent:'Communicating', ago:'2 h ago', days:0,
-    text:'Deployment to staging failed on the migration step. Rolling back now. The Helsinki cluster is still on the previous release — do not merge anything until this is green.' },
+    text:'Deployment to staging failed on the migration step. Rolling back now. The Helsinki cluster is still on the previous release — do not merge anything until this is green.',
+    concepts:'chat message team conversation devops release infrastructure incident' },
   { t:'Designing the timeline scrubber — Figma', app:'figma', intent:'Designing', ago:'yesterday 16:04', days:1,
-    text:'Timeline scrubber explorations. Log scale keeps quiet hours legible next to busy ones. Bar colour follows the dominant activity for that slice.' },
+    text:'Timeline scrubber explorations. Log scale keeps quiet hours legible next to busy ones. Bar colour follows the dominant activity for that slice.',
+    concepts:'design ui ux visual layout interface mockup prototype graphics' },
   { t:'SQLite FTS5 — Full-Text Search Extension', app:'chrome', intent:'Reading', ago:'yesterday 11:20', days:1,
-    text:'External content FTS5 tables store only the inverted index and read column values back from the content table, which avoids storing the text twice. Triggers keep the index in step.' },
+    text:'External content FTS5 tables store only the inverted index and read column values back from the content table, which avoids storing the text twice. Triggers keep the index in step.',
+    concepts:'database documentation reading reference search index storage sqlite' },
   { t:'anshp@dev: ~/recallos — Windows Terminal', app:'terminal', intent:'Terminal', ago:'2 days ago', days:2,
-    text:'dotnet test — Passed! Failed: 0, Passed: 135, Skipped: 0, Total: 135, Duration: 29 s. Publishing self-contained win-x64 build to artifacts.' },
+    text:'dotnet test — Passed! Failed: 0, Passed: 135, Skipped: 0, Total: 135, Duration: 29 s. Publishing self-contained win-x64 build to artifacts.',
+    concepts:'terminal command line shell testing build release programming' },
   { t:'Invoice 4411 — Northwind Supplies', app:'chrome', intent:'Reading', ago:'3 days ago', days:3,
-    text:'Invoice 4411 issued to Northwind Supplies. Amount due 8,420.00 payable within 30 days. Purchase order 99-2231 referenced. Remittance to the account on file.' },
+    text:'Invoice 4411 issued to Northwind Supplies. Amount due 8,420.00 payable within 30 days. Purchase order 99-2231 referenced. Remittance to the account on file.',
+    concepts:'money finance billing payment invoice accounting purchase supplier' },
   { t:'Pull request #218 — hybrid ranking — GitHub', app:'chrome', intent:'Browsing', ago:'4 days ago', days:4,
-    text:'Pull request 218: blend keyword and semantic scores after min-max normalising each, and add a small bonus where both signals agree. Reviewers requested a test for the empty-query path.' },
+    text:'Pull request 218: blend keyword and semantic scores after min-max normalising each, and add a small bonus where both signals agree. Reviewers requested a test for the empty-query path.',
+    concepts:'programming code review software engineering search ranking algorithm' },
 ];
-
 FRAMES.forEach((f,i) => f.seed = i+1);
 
 const q = document.getElementById('q'), res = document.getElementById('res'), stat = document.getElementById('stat');
-const CHIPS = ['invoice','"pull request"','revenue app:excel','deployment','app:code','after:yesterday'];
+let MODE = 'hybrid';
+const CHIPS = ['invoice','"pull request"','revenue app:excel','money','app:code','after:yesterday'];
 document.getElementById('chips').innerHTML = CHIPS.map(c => `<span class="chip">${c.replace(/"/g,'&quot;')}</span>`).join('');
 
 function parse(raw){
@@ -642,7 +806,6 @@ function parse(raw){
   }
   return {terms,apps,titles,days};
 }
-
 const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const rx = t => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'ig');
 
@@ -655,17 +818,13 @@ function snippet(text, terms){
   for(const t of terms) if(t.length>1) s = s.replace(rx(t), x => `<mark>${x}</mark>`);
   return s;
 }
-
 function thumb(seed, app){
-  const c = document.createElement('canvas');
-  c.width=208; c.height=124;
-  const g = c.getContext('2d');
-  let s = seed*7919; const rnd=()=>((s=(s*9301+49297)%233280)/233280);
+  const c = document.createElement('canvas'); c.width=208; c.height=124;
+  const g = c.getContext('2d'); let s = seed*7919; const rnd=()=>((s=(s*9301+49297)%233280)/233280);
   g.fillStyle='#0e1015'; g.fillRect(0,0,208,124);
   g.fillStyle='#14171e'; g.fillRect(0,0,208,15);
   g.fillStyle=APPS[app]||'#6366f1'; g.fillRect(0,15,46,109);
-  let y=24;
-  while(y<118){ g.fillStyle=`rgba(155,163,180,${.16+rnd()*.32})`; g.fillRect(54, y, 40+rnd()*140, 4); y+=10; }
+  let y=24; while(y<118){ g.fillStyle=`rgba(155,163,180,${.16+rnd()*.32})`; g.fillRect(54,y,40+rnd()*140,4); y+=10; }
   return c;
 }
 
@@ -673,25 +832,39 @@ function run(){
   const raw = q.value.trim();
   const {terms,apps,titles,days} = parse(raw);
 
-  let hits = FRAMES.map(f=>{
+  let hits = FRAMES.map(f => {
     const hay = (f.text+' '+f.t).toLowerCase();
-    let score = 0, ok = true;
-    for(const t of terms){ const n = (hay.match(rx(t))||[]).length; if(!n){ ok=false; break; } score += n + (f.t.toLowerCase().includes(t.toLowerCase())?3:0); }
+    let words = 0, meaning = 0, ok = true;
+
+    for(const t of terms){
+      const n = (hay.match(rx(t))||[]).length;
+      words += n + (f.t.toLowerCase().includes(t.toLowerCase()) ? 3 : 0);
+      // "Meaning" stands in for the embedding: a concept vocabulary per frame,
+      // so a word never printed on screen can still retrieve it.
+      if(f.concepts.includes(t.toLowerCase())) meaning += 4;
+    }
+    // Words mode demands every term appear; meaning mode does not.
+    if(MODE === 'words' && terms.some(t => !(hay.match(rx(t))||[]).length)) ok = false;
+    if(MODE === 'hybrid' && terms.length && words === 0 && meaning === 0) ok = false;
+    if(MODE === 'meaning' && terms.length && meaning === 0 && words === 0) ok = false;
+
     if(ok && apps.length) ok = apps.includes(f.app);
-    if(ok && titles.length) ok = titles.every(t=>f.t.toLowerCase().includes(t));
-    if(ok && days!==null) ok = f.days <= days;
-    return ok ? {f, score} : null;
+    if(ok && titles.length) ok = titles.every(t => f.t.toLowerCase().includes(t));
+    if(ok && days !== null) ok = f.days <= days;
+
+    const score = MODE === 'words' ? words : MODE === 'meaning' ? meaning : words + meaning*0.8;
+    return ok ? {f, score, words, meaning} : null;
   }).filter(Boolean);
 
-  if(!raw) hits = FRAMES.map(f=>({f,score:0}));
-  hits.sort((a,b)=>b.score-a.score);
+  if(!raw) hits = FRAMES.map(f => ({f, score:0, words:0, meaning:0}));
+  hits.sort((a,b) => b.score - a.score);
 
   const ms = (6 + Math.random()*9).toFixed(0);
   stat.textContent = raw
-    ? `${hits.length} result${hits.length===1?'':'s'} in ${ms} ms`
+    ? `${hits.length} result${hits.length===1?'':'s'} in ${ms} ms · ${MODE} ranking`
     : `${FRAMES.length} frames · showing everything`;
 
-  res.innerHTML = hits.length ? hits.map(({f},i)=>`
+  res.innerHTML = hits.length ? hits.map(({f,words,meaning},i) => `
     <div class="hit" style="animation-delay:${i*38}ms">
       <div class="thumb" data-seed="${f.seed}" data-app="${f.app}"></div>
       <div class="hit-main">
@@ -700,11 +873,12 @@ function run(){
           <span>${f.ago}</span>
           <span class="badge" style="background:${APPS[f.app]}">${f.intent}</span>
           <span>${f.app}</span>
+          ${q.value.trim() ? `<span class="score">${words&&meaning?'word + meaning':words?'word match':'meaning match'}</span>` : ''}
         </div>
         <div class="snip">${snippet(f.text, terms)}</div>
       </div>
     </div>`).join('')
-    : `<div class="empty">No matches.<br/><span style="color:var(--text-2)">Try <code>invoice</code>, <code>app:code</code> or <code>"pull request"</code>.</span></div>`;
+    : `<div class="empty">No matches.<br/><span style="color:var(--text-2)">Try <code>invoice</code>, <code>money</code> in Meaning mode, or <code>app:code</code>.</span></div>`;
 
   res.querySelectorAll('.thumb').forEach(el => el.appendChild(thumb(+el.dataset.seed, el.dataset.app)));
 }
@@ -712,29 +886,28 @@ function run(){
 q.addEventListener('input', run);
 document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
   q.value = c.textContent; run(); q.focus();
-  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
   c.classList.add('on');
+}));
+document.querySelectorAll('.mode').forEach(m => m.addEventListener('click', () => {
+  document.querySelectorAll('.mode').forEach(x => x.classList.remove('on'));
+  m.classList.add('on'); MODE = m.dataset.m; run();
 }));
 run();
 
-/* Typewriter hint on first view, so the demo shows what it can do unprompted. */
 const demoSection = document.getElementById('demo');
 let typed = false;
 new IntersectionObserver(es => {
   if(!es[0].isIntersecting || typed) return;
   typed = true;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const phrase = 'invoice';
-  let i = 0;
-  const t = setInterval(() => {
-    q.value = phrase.slice(0, ++i); run();
-    if(i >= phrase.length) clearInterval(t);
-  }, 105);
+  const phrase = 'invoice'; let i = 0;
+  const t = setInterval(() => { q.value = phrase.slice(0, ++i); run(); if(i >= phrase.length) clearInterval(t); }, 105);
 }, {threshold:.35}).observe(demoSection);
 
 document.querySelectorAll('.rv').forEach(el => io.observe(el));
 
-// Belt and braces: whatever happens, nothing stays hidden for long.
+// Belt and braces: whatever happens, nothing stays hidden.
 addEventListener('load', () => setTimeout(() => {
   document.querySelectorAll('.rv:not(.in)').forEach(el => {
     if (el.getBoundingClientRect().top < innerHeight) el.classList.add('in');

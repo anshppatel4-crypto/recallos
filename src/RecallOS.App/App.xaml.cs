@@ -104,6 +104,7 @@ public partial class App : Application
 
         services.AddSingleton<TimelineViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<TutorialViewModel>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<GlobalHotkeyService>();
 
