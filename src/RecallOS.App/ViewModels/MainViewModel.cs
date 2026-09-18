@@ -47,6 +47,17 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private readonly ILogger<MainViewModel> _logger;
 
     private readonly DispatcherTimer _searchTimer;
+
+    /// <summary>
+    /// Ticks once a second while recording to refresh the countdown to the next capture.
+    /// </summary>
+    /// <remarks>
+    /// Between captures nothing changes on screen, so without this the interface looks
+    /// identical whether the recorder is running or dead. A visible countdown is the
+    /// cheapest possible proof that it is still working.
+    /// </remarks>
+    private readonly DispatcherTimer _heartbeatTimer;
+
     private CancellationTokenSource? _searchCancellation;
 
     [ObservableProperty]
@@ -94,6 +105,24 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _isWelcomeVisible;
 
+    /// <summary>
+    /// How many captures were deliberately discarded this session, and why.
+    /// </summary>
+    /// <remarks>
+    /// Surfaced because a skip is indistinguishable from a failure otherwise. If the
+    /// recorder is running and the frame count is not moving, the user needs to be told
+    /// that this is a decision rather than a fault.
+    /// </remarks>
+    [ObservableProperty]
+    private int _skippedCount;
+
+    [ObservableProperty]
+    private string _skipSummary = string.Empty;
+
+    /// <summary>Countdown to the next automatic capture, e.g. "next in 6s".</summary>
+    [ObservableProperty]
+    private string _recordingStatus = string.Empty;
+
     public MainViewModel(
         ISearchService search,
         IFrameRepository repository,
@@ -131,8 +160,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             await RunSearchAsync().ConfigureAwait(true);
         };
 
+        _heartbeatTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _heartbeatTimer.Tick += (_, _) => UpdateRecordingStatus();
+
         // Background events cross onto the UI thread exactly here.
         _pipeline.FrameCaptured += OnFrameCaptured;
+        _pipeline.CaptureSkipped += OnCaptureSkipped;
         _ocrQueue.FrameProcessed += OnFrameProcessed;
         _ocrQueue.QueueDepthChanged += OnQueueDepthChanged;
         Timeline.BucketSelected += OnTimelineBucketSelected;
@@ -173,6 +206,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             _scheduler.Start();
             IsRecording = true;
+            _heartbeatTimer.Start();
         }
 
         StatusMessage = TotalFrames == 0
@@ -327,14 +361,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         if (settings.AutoCaptureEnabled)
         {
+            SkippedCount = 0;
+            SkipSummary = string.Empty;
             _scheduler.Start();
             IsRecording = true;
-            StatusMessage = $"Recording every {settings.CaptureIntervalSeconds} seconds.";
+            _heartbeatTimer.Start();
+            StatusMessage = $"Recording every {settings.CaptureIntervalSeconds} seconds until you press Pause.";
         }
         else
         {
             _scheduler.Pause();
             IsRecording = false;
+            _heartbeatTimer.Stop();
+            RecordingStatus = string.Empty;
             StatusMessage = "Recording paused.";
         }
 
@@ -560,6 +599,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             }
         });
 
+    private void OnCaptureSkipped(object? sender, CaptureSkipReason reason) =>
+        _dispatcher.InvokeAsync(() =>
+        {
+            SkippedCount++;
+            SkipSummary = $"{SkippedCount:N0} skipped · {Describe(reason)}";
+        });
+
     private void OnQueueDepthChanged(object? sender, int depth) =>
         _dispatcher.InvokeAsync(() => QueueDepth = depth);
 
@@ -586,12 +632,36 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             _scheduler.Start();
             IsRecording = true;
+            _heartbeatTimer.Start();
         }
         else
         {
             _scheduler.Pause();
             IsRecording = false;
+            _heartbeatTimer.Stop();
+            RecordingStatus = string.Empty;
         }
+    }
+
+    /// <summary>Refresh the countdown shown while recording.</summary>
+    private void UpdateRecordingStatus()
+    {
+        if (!IsRecording)
+        {
+            RecordingStatus = string.Empty;
+            return;
+        }
+
+        if (_scheduler.NextCaptureAt is not { } next)
+        {
+            RecordingStatus = "capturing…";
+            return;
+        }
+
+        var remaining = next - DateTimeOffset.Now;
+        RecordingStatus = remaining <= TimeSpan.Zero
+            ? "capturing…"
+            : $"next in {Math.Max(1, (int)Math.Ceiling(remaining.TotalSeconds))}s";
     }
 
     // ---- helpers --------------------------------------------------------------------
@@ -626,8 +696,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _searchTimer.Stop();
+        _heartbeatTimer.Stop();
 
         _pipeline.FrameCaptured -= OnFrameCaptured;
+        _pipeline.CaptureSkipped -= OnCaptureSkipped;
         _ocrQueue.FrameProcessed -= OnFrameProcessed;
         _ocrQueue.QueueDepthChanged -= OnQueueDepthChanged;
         Timeline.BucketSelected -= OnTimelineBucketSelected;

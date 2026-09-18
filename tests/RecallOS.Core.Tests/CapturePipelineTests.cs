@@ -6,6 +6,7 @@ using RecallOS.Core.Common;
 using RecallOS.Core.Models;
 using RecallOS.Core.Pipeline;
 using RecallOS.Core.Storage;
+using RecallOS.Core.Tests.Fakes;
 using Xunit;
 
 namespace RecallOS.Core.Tests;
@@ -21,54 +22,6 @@ namespace RecallOS.Core.Tests;
 /// </remarks>
 public sealed class CapturePipelineTests : IAsyncLifetime
 {
-    /// <summary>A screen the test controls completely.</summary>
-    private sealed class FakeScreen : IScreenCaptureService
-    {
-        public Color Fill { get; set; } = Color.CornflowerBlue;
-
-        public string? WindowTitle { get; set; } = "Example Window";
-
-        public string? ProcessName { get; set; } = "chrome";
-
-        public TimeSpan IdleTime { get; set; } = TimeSpan.Zero;
-
-        public bool Locked { get; set; }
-
-        public int CaptureCount { get; private set; }
-
-        public Task<CapturedImage> CaptureAsync(CaptureRequest request, CancellationToken cancellationToken = default)
-        {
-            CaptureCount++;
-
-            var bitmap = new Bitmap(160, 120, PixelFormat.Format24bppRgb);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.Clear(Fill);
-
-                // A little structure, so the perceptual hash has something to key on
-                // beyond a flat colour.
-                using var brush = new SolidBrush(Color.FromArgb(
-                    255 - Fill.R, 255 - Fill.G, 255 - Fill.B));
-                graphics.FillRectangle(brush, 10, 10, 60, 40);
-            }
-
-            return Task.FromResult(new CapturedImage
-            {
-                Bitmap = bitmap,
-                CapturedAt = DateTimeOffset.UtcNow,
-                Target = request.Target,
-                WindowTitle = WindowTitle,
-                ProcessName = ProcessName
-            });
-        }
-
-        public ForegroundWindowInfo GetForegroundWindow() => new(1, WindowTitle, ProcessName);
-
-        public TimeSpan GetUserIdleTime() => IdleTime;
-
-        public bool IsSessionLocked() => Locked;
-    }
-
     private readonly string _root = Path.Combine(
         Path.GetTempPath(),
         "recallos-tests",
@@ -145,6 +98,9 @@ public sealed class CapturePipelineTests : IAsyncLifetime
     [Fact]
     public async Task AnUnchangedScreenIsSkippedOnAutomaticCapture()
     {
+        // Opt in: deduplication is off by default so that Record keeps recording.
+        await ConfigureAsync(s => s.SkipUnchangedFrames = true);
+
         await _pipeline.CaptureAsync(Auto());
         var second = await _pipeline.CaptureAsync(Auto());
 
@@ -156,6 +112,8 @@ public sealed class CapturePipelineTests : IAsyncLifetime
     [Fact]
     public async Task AChangedScreenIsStoredEvenWhenDeduplicationIsOn()
     {
+        await ConfigureAsync(s => s.SkipUnchangedFrames = true);
+
         await _pipeline.CaptureAsync(Auto());
 
         _screen.Fill = Color.DarkRed;
@@ -291,17 +249,5 @@ public sealed class CapturePipelineTests : IAsyncLifetime
 
         Assert.False(outcome.WasStored);
         Assert.NotNull(outcome.Error);
-    }
-
-    private sealed class ThrowingScreen : IScreenCaptureService
-    {
-        public Task<CapturedImage> CaptureAsync(CaptureRequest request, CancellationToken cancellationToken = default) =>
-            throw new InvalidOperationException("the display adapter went away");
-
-        public ForegroundWindowInfo GetForegroundWindow() => ForegroundWindowInfo.None;
-
-        public TimeSpan GetUserIdleTime() => TimeSpan.Zero;
-
-        public bool IsSessionLocked() => false;
     }
 }

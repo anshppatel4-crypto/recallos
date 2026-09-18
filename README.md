@@ -9,6 +9,7 @@ entirely on your own machine.
 [![build](https://github.com/anshppatel4-crypto/recallos/actions/workflows/ci.yml/badge.svg)](https://github.com/anshppatel4-crypto/recallos/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-6366f1)](LICENSE)
 [![platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-6366f1)](#download)
+[![website](https://img.shields.io/badge/website-recallos-a855f7)](https://anshppatel4-crypto.github.io/recallos/)
 [![local only](https://img.shields.io/badge/data-100%25%20local-34d399)](#privacy)
 
 <img src="docs/main.png" width="880" alt="RecallOS main window" />
@@ -34,7 +35,7 @@ shows, placed on a timeline, and reachable by meaning as well as by wording.
 
 ## Download
 
-**[Download the latest release →](https://github.com/anshppatel4-crypto/recallos/releases/latest)**
+**[Download the latest release →](https://github.com/anshppatel4-crypto/recallos/releases/latest)**  ·  **[Website →](https://anshppatel4-crypto.github.io/recallos/)**
 
 Unzip it anywhere and run `RecallOS.exe`. Nothing to install — the build is self-contained,
 so you do **not** need the .NET runtime.
@@ -171,6 +172,14 @@ a real sentence-transformer means registering a new provider and letting the bac
 old and new vectors coexist, are never compared, and the store stays searchable throughout.
 No migration, no downtime.
 
+**Record means record.** Deduplicating visually identical frames is an obvious way to
+save disk, and it was the default until it was tested against how the feature reads: a
+screen that is not changing much produces one frame and then nothing, which is
+indistinguishable from a broken recorder. Deduplication is now opt-in, the capture interval
+defaults to ten seconds rather than thirty, and a live countdown in the title bar shows the
+recorder is still working between frames. Storage is bounded by the retention caps instead,
+which prune predictably rather than silently declining to record.
+
 **Rows are deleted before files.** A crash mid-sweep then leaves an orphaned image with no
 row — invisible, and reclaimed next sweep. The opposite order would leave rows pointing at
 files that no longer exist, which the user meets as broken results in their own history.
@@ -192,7 +201,7 @@ Requires the .NET 8 SDK or newer.
 git clone https://github.com/anshppatel4-crypto/recallos.git
 cd recallos
 
-dotnet test                                  # 128 tests
+dotnet test                                  # 135 tests
 dotnet run --project src/RecallOS.App        # run it
 
 pwsh build/publish.ps1 -Version 1.0.0        # produce the release zip
@@ -200,7 +209,7 @@ pwsh build/publish.ps1 -Version 1.0.0        # produce the release zip
 
 ### Tests
 
-128 tests, run against the real SQLite schema, the real FTS5 index, real files on disk, the
+135 tests, run against the real SQLite schema, the real FTS5 index, real files on disk, the
 real Win32 capture path and the real Tesseract engine rather than mocks — those layers are
 almost entirely SQL and P/Invoke, so mocking them would test nothing that could break.
 

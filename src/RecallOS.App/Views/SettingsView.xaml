@@ -88,12 +88,12 @@
                 <TextBlock Style="{StaticResource Micro}" TextWrapping="Wrap" LineHeight="16"
                            Text="Nothing changes on screen while you are away, so recording it only costs disk space. Set to 0 to record regardless." />
 
-                <CheckBox Content="Skip frames identical to the one before"
+                <CheckBox Content="Save disk by skipping frames identical to the one before"
                           Style="{StaticResource ToggleSwitch}"
                           Margin="0,14,0,0"
                           IsChecked="{Binding SkipUnchangedFrames}" />
                 <TextBlock Style="{StaticResource Micro}" TextWrapping="Wrap" LineHeight="16"
-                           Text="Compares a perceptual hash rather than the file bytes, so a blinking cursor or a ticking clock does not count as a change." />
+                           Text="Off by default, so Record keeps recording. Turning it on saves space while you read or step away, but a screen that is not changing will stop producing frames until it does." />
 
                 <CheckBox Content="Include the mouse pointer"
                           Style="{StaticResource ToggleSwitch}"

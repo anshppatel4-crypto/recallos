@@ -132,6 +132,15 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
+
+                    <!-- Proof of life between captures: without a countdown the window looks
+                         identical whether the recorder is running or has died. -->
+                    <TextBlock Style="{StaticResource Micro}"
+                               VerticalAlignment="Center"
+                               Margin="7,0,0,0"
+                               Foreground="{StaticResource Accent}"
+                               Text="{Binding RecordingStatus}"
+                               Visibility="{Binding IsRecording, Converter={StaticResource BoolToVisibility}}" />
                 </StackPanel>
 
                 <!-- Caption buttons -->
@@ -663,6 +672,13 @@
                                VerticalAlignment="Center" />
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <!-- A skip is a decision, not a fault; saying so keeps a static
+                             frame count from looking like a broken recorder. -->
+                        <TextBlock Style="{StaticResource Micro}"
+                                   Margin="0,0,16,0"
+                                   Foreground="{StaticResource TextTertiary}"
+                                   Text="{Binding SkipSummary}"
+                                   Visibility="{Binding SkippedCount, Converter={StaticResource CountToVisibility}}" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,16,0"
                                     Visibility="{Binding QueueDepth, Converter={StaticResource CountToVisibility}}">
                             <TextBlock Text="&#xE895;" FontFamily="{StaticResource IconFont}" FontSize="10"

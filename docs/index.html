@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RecallOS — A memory layer for your screen</title>
+<meta name="description" content="RecallOS records what is on your screen, reads the text on it, and makes all of it searchable. Entirely local. No account, no sync, no telemetry." />
+
+<meta property="og:title" content="RecallOS — A memory layer for your screen" />
+<meta property="og:description" content="Records your screen, reads the text, makes it searchable. 100% local." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#08090c" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<script>document.documentElement.className='js';</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%236366f1'/><path d='M50 22a28 28 0 1 0 28 28' stroke='white' stroke-width='9' fill='none' stroke-linecap='round'/><path d='M50 34v18l12 7' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+
+<style>
+/* ========================================================================
+   Tokens — the same palette the desktop app uses, so the site and the
+   product read as one thing rather than a marketing page about a product.
+   ======================================================================== */
+:root{
+  --bg:#08090c;
+  --surface:#0e1015;
+  --elevated:#14171e;
+  --hover:#1b1f29;
+  --active:#232834;
+  --stroke:#1e222c;
+  --stroke-strong:#2c3240;
+
+  --accent:#6366f1;
+  --accent-bright:#818cf8;
+  --accent-deep:#4f46e5;
+  --violet:#a855f7;
+  --wash:rgba(99,102,241,.12);
+
+  --text:#f2f4f8;
+  --text-2:#9ba3b4;
+  --text-3:#636b7c;
+
+  --success:#34d399;
+  --warning:#fbbf24;
+  --danger:#f87171;
+
+  --grad:linear-gradient(120deg,var(--accent-deep),var(--accent) 45%,var(--violet));
+  --maxw:1180px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:Inter,'Segoe UI',system-ui,-apple-system,sans-serif;
+  font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+code,kbd,.mono{font-family:'JetBrains Mono',Consolas,monospace}
+::selection{background:rgba(99,102,241,.4)}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+/* ---------- Nav ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(8,9,12,.62);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s,background .3s;
+}
+nav.scrolled{border-bottom-color:var(--stroke);background:rgba(8,9,12,.85)}
+.nav-in{display:flex;align-items:center;gap:14px;height:62px;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em}
+.mark{width:28px;height:28px;border-radius:8px;background:var(--grad);display:grid;place-items:center;flex:none;
+  box-shadow:0 0 22px rgba(99,102,241,.45)}
+.mark svg{width:16px;height:16px}
+.pill{font-size:10px;font-weight:700;letter-spacing:.09em;padding:3px 8px;border-radius:5px;
+  background:var(--active);color:var(--text-2)}
+.nav-links{margin-left:auto;display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:14px;color:var(--text-2);transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+@media(max-width:860px){.nav-links a:not(.btn){display:none}}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;
+  border:1px solid var(--stroke);background:var(--elevated);color:var(--text);
+  cursor:pointer;position:relative;transition:transform .18s var(--ease),border-color .2s,background .2s;
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--stroke-strong);background:var(--hover)}
+.btn-primary{background:var(--grad);border:none;color:#fff;box-shadow:0 6px 30px -6px rgba(99,102,241,.7)}
+.btn-primary:hover{box-shadow:0 10px 40px -6px rgba(99,102,241,.9)}
+.btn-lg{padding:15px 28px;font-size:15px;border-radius:12px}
+.btn svg{width:17px;height:17px;flex:none}
+
+/* ---------- Hero ---------- */
+header{position:relative;min-height:100svh;display:flex;align-items:center;padding:110px 0 70px;overflow:hidden}
+#scene{position:absolute;inset:0;z-index:0}
+/* Keeps text legible over the 3D field without hiding it. */
+.hero-veil{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(1100px 620px at 18% 42%, rgba(8,9,12,.92), rgba(8,9,12,.46) 56%, transparent 80%),
+    linear-gradient(to bottom, rgba(8,9,12,.85), transparent 28%, transparent 62%, var(--bg));
+}
+.hero{position:relative;z-index:2;max-width:760px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:6px 14px;border-radius:999px;
+  border:1px solid var(--stroke-strong);background:rgba(20,23,30,.72);font-size:12.5px;color:var(--text-2);
+  margin-bottom:26px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 10px var(--success)}
+h1{font-size:clamp(42px,7.2vw,80px);line-height:1.02;letter-spacing:-.045em;font-weight:800}
+h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:clamp(17px,2.1vw,20px);color:var(--text-2);margin:26px 0 34px;max-width:620px;line-height:1.62}
+.cta{display:flex;flex-wrap:wrap;gap:13px;align-items:center}
+.meta{font-size:12.5px;color:var(--text-3);margin-top:20px;display:flex;flex-wrap:wrap;gap:8px 18px}
+.meta b{color:var(--text-2);font-weight:600}
+
+/* ---------- Sections ---------- */
+section{padding:110px 0;position:relative}
+.tag{font-size:11px;font-weight:700;letter-spacing:.17em;color:var(--accent-bright);margin-bottom:16px}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;letter-spacing:-.035em;font-weight:700}
+.sub{color:var(--text-2);font-size:17px;margin-top:16px;max-width:620px;line-height:1.65}
+
+/* ---------- Reveal on scroll ----------
+   Content is visible by default and only hidden once JS has confirmed it is
+   running (the .js class). Without that guard, a script error or an old
+   browser would leave the entire page below the hero permanently invisible —
+   an animation is not worth risking the content for. */
+.rv{transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.js .rv{opacity:0;transform:translateY(26px)}
+.js .rv.in{opacity:1;transform:none}
+
+/* ---------- Feature grid ---------- */
+.grid{display:grid;gap:18px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{
+  padding:28px;border-radius:16px;border:1px solid var(--stroke);
+  background:linear-gradient(180deg,var(--surface),rgba(8,9,12,.4));
+  position:relative;overflow:hidden;transition:border-color .3s,transform .3s var(--ease);
+}
+.card:hover{border-color:var(--stroke-strong);transform:translateY(-4px)}
+/* A soft light that follows the cursor across the card. */
+.card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(99,102,241,.13),transparent 42%)}
+.card:hover::before{opacity:1}
+.ico{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;margin-bottom:18px;
+  background:var(--wash);border:1px solid rgba(99,102,241,.25)}
+.ico svg{width:20px;height:20px;stroke:var(--accent-bright)}
+.card h3{font-size:17px;font-weight:650;margin-bottom:9px;letter-spacing:-.01em}
+.card p{color:var(--text-2);font-size:14.5px;line-height:1.62}
+
+/* ---------- Search demo ---------- */
+.demo{border:1px solid var(--stroke);border-radius:18px;overflow:hidden;background:var(--surface);
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.9);margin-top:48px}
+.demo-bar{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--stroke);
+  background:var(--elevated)}
+.tl{display:flex;gap:7px}
+.tl i{width:11px;height:11px;border-radius:50%;background:var(--active);display:block}
+.demo-title{font-size:12.5px;color:var(--text-3);margin-left:6px}
+.demo-body{padding:22px}
+.search-row{position:relative;display:flex;align-items:center}
+.search-row svg{position:absolute;left:15px;width:17px;height:17px;stroke:var(--text-3);pointer-events:none}
+#q{
+  width:100%;padding:14px 16px 14px 44px;border-radius:11px;
+  background:var(--bg);border:1px solid var(--stroke);color:var(--text);
+  font-size:15px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s;
+}
+#q:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(99,102,241,.16)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--stroke);
+  background:var(--elevated);color:var(--text-2);cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+.chip.on{background:var(--wash);border-color:var(--accent);color:var(--accent-bright)}
+.stat{font-size:12px;color:var(--text-3);margin:18px 0 10px;font-variant-numeric:tabular-nums}
+.res{display:flex;flex-direction:column;gap:9px;min-height:232px}
+.hit{display:flex;gap:14px;padding:13px;border-radius:12px;border:1px solid transparent;
+  background:var(--elevated);animation:pop .34s var(--ease) backwards}
+@keyframes pop{from{opacity:0;transform:translateY(9px)}}
+.hit:hover{border-color:var(--stroke-strong)}
+.thumb{width:104px;height:62px;border-radius:7px;flex:none;border:1px solid var(--stroke);overflow:hidden;position:relative;background:#0a0b0f}
+.thumb canvas{width:100%;height:100%;display:block}
+.hit-main{min-width:0;flex:1}
+.hit-t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hit-m{display:flex;align-items:center;gap:8px;margin:5px 0 6px;font-size:11px;color:var(--text-3);flex-wrap:wrap}
+.badge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:4px;color:#0a0b0f}
+.snip{font-size:12.5px;color:var(--text-2);line-height:1.55;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+mark{background:rgba(251,191,36,.34);color:#fde68a;border-radius:3px;padding:0 2px}
+.empty{display:grid;place-items:center;height:232px;color:var(--text-3);font-size:14px;text-align:center}
+
+/* ---------- Pipeline ---------- */
+.pipe{display:grid;gap:14px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.step{padding:24px;border-radius:15px;border:1px solid var(--stroke);background:var(--surface);position:relative}
+.step .n{font-size:11px;font-weight:700;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;margin-bottom:12px}
+.step h4{font-size:15px;margin-bottom:8px;font-weight:650}
+.step p{font-size:13.5px;color:var(--text-2);line-height:1.6}
+.step::after{content:'';position:absolute;right:-8px;top:50%;width:14px;height:1px;background:var(--stroke-strong)}
+.step:last-child::after{display:none}
+@media(max-width:840px){.step::after{display:none}}
+
+/* ---------- Shots ---------- */
+.shots{display:grid;gap:20px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+figure{border-radius:15px;overflow:hidden;border:1px solid var(--stroke);background:var(--surface)}
+figure img{width:100%;display:block}
+figcaption{padding:14px 17px;font-size:12.5px;color:var(--text-3);border-top:1px solid var(--stroke)}
+
+/* ---------- Privacy ---------- */
+.priv{display:grid;gap:16px;margin-top:48px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+.pv{display:flex;gap:14px;padding:22px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface)}
+.pv svg{width:19px;height:19px;stroke:var(--success);flex:none;margin-top:2px}
+.pv b{display:block;font-size:14.5px;margin-bottom:5px;font-weight:620}
+.pv span{font-size:13.5px;color:var(--text-2);line-height:1.6}
+
+/* ---------- Numbers ---------- */
+.nums{display:grid;gap:16px;margin-top:48px;grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
+.num{padding:26px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface);text-align:center}
+.num b{display:block;font-size:34px;font-weight:750;letter-spacing:-.03em;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums}
+.num span{font-size:12.5px;color:var(--text-3)}
+
+/* ---------- Download ---------- */
+.dl{text-align:center;padding:66px 32px;border-radius:22px;position:relative;overflow:hidden;
+  border:1px solid var(--stroke-strong);
+  background:radial-gradient(900px 420px at 50% -10%,rgba(99,102,241,.2),transparent 62%),var(--surface)}
+.dl h2{margin-bottom:16px}
+.dl .sub{margin:0 auto 32px}
+.note{margin-top:26px;font-size:12.5px;color:var(--text-3);max-width:520px;margin-inline:auto;line-height:1.65}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);font-size:13.5px}
+.foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.foot a{color:var(--text-2)}
+.foot a:hover{color:var(--text)}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-in">
+    <a href="#" class="brand">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2"/><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/></svg></span>
+      RecallOS <span class="pill">LOCAL</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#demo">Search</a>
+      <a href="#privacy">Privacy</a>
+      <a href="https://github.com/anshppatel4-crypto/recallos">GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">Download</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div id="scene"></div>
+  <div class="hero-veil"></div>
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow"><span class="dot"></span> Runs entirely on your machine</div>
+      <h1>A memory layer<br/>for your <span class="grad">screen</span>.</h1>
+      <p class="lede">
+        RecallOS records what you see, reads the text on it, and makes every moment
+        searchable — by the words that were on screen, or just by what you meant.
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Download for Windows
+        </a>
+        <a class="btn btn-lg" href="https://github.com/anshppatel4-crypto/recallos">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.999 4.3 19 4.6 19 4.6c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5z"/></svg>
+          View source
+        </a>
+      </div>
+      <div class="meta">
+        <span><b>68 MB</b> · self-contained</span>
+        <span><b>No</b> .NET install needed</span>
+        <span><b>135</b> tests passing</span>
+        <span><b>MIT</b> licensed</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <div class="rv">
+      <div class="tag">HOW IT WORKS</div>
+      <h2>Capture, read, index, recall.</h2>
+      <p class="sub">
+        Four stages, split so the slow ones never block the fast ones. Pressing Record
+        starts a loop that keeps going until you stop it.
+      </p>
+    </div>
+    <div class="pipe">
+      <div class="step rv"><div class="n">01</div><h4>Capture</h4><p>Win32 <span class="mono">BitBlt</span> over the virtual screen, a single monitor, or just the focused window. DPI-aware, so scaled displays stay sharp.</p></div>
+      <div class="step rv"><div class="n">02</div><h4>Extract</h4><p>Tesseract reads the text with per-word geometry, on a background queue. A frame is visible the instant it is captured, long before its text arrives.</p></div>
+      <div class="step rv"><div class="n">03</div><h4>Index</h4><p>Text is split into paragraph-sized chunks, indexed in SQLite FTS5 and embedded as vectors so both exact words and rough meaning can find it.</p></div>
+      <div class="step rv"><div class="n">04</div><h4>Recall</h4><p>Search, scrub the activity timeline, then replay the original screenshot beside the text that was on it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="wrap">
+    <div class="rv">
+      <div class="tag">TRY THE SEARCH</div>
+      <h2>Type what you half-remember.</h2>
+      <p class="sub">
+        A live mock-up of the real query syntax, running on sample frames. Filters,
+        phrases and dates work exactly as they do in the app.
+      </p>
+    </div>
+
+    <div class="demo rv">
+      <div class="demo-bar">
+        <span class="tl"><i></i><i></i><i></i></span>
+        <span class="demo-title">RecallOS — search</span>
+      </div>
+      <div class="demo-body">
+        <div class="search-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="q" placeholder="Search everything you have seen…" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="stat" id="stat"></div>
+        <div class="res" id="res"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="rv">
+      <div class="tag">CAPABILITIES</div>
+      <h2>Built like a system component.</h2>
+    </div>
+    <div class="grid" id="cards"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="rv">
+      <div class="tag">THE APP</div>
+      <h2>Quiet by design.</h2>
+      <p class="sub">Dark, native, and out of the way — the interface exists to show your screenshots, not to compete with them.</p>
+    </div>
+    <div class="shots rv">
+      <figure><img src="main.png" alt="RecallOS main window showing search, results and replay" loading="lazy" /><figcaption>Search, results and replay in one window.</figcaption></figure>
+      <figure><img src="settings.png" alt="RecallOS settings panel" loading="lazy" /><figcaption>Every behaviour is visible and reversible.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="rv">
+      <div class="tag">PRIVACY</div>
+      <h2>It records you. So you audit it.</h2>
+      <p class="sub">
+        A tool that watches your screen has to be accountable to the person it watches.
+        These are guarantees enforced in code and covered by tests — not promises.
+      </p>
+    </div>
+    <div class="priv" id="priv"></div>
+    <div class="nums" id="nums"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="dl rv">
+      <h2>Start remembering.</h2>
+      <p class="sub">Unzip it, run it. Nothing to install, no account, no sign-in.</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Download for Windows
+        </a>
+        <a class="btn btn-lg" href="https://github.com/anshppatel4-crypto/recallos#building-from-source">Build from source</a>
+      </div>
+      <p class="note">
+        Windows 10 or 11. Windows will warn about an unrecognised publisher because the
+        build is not code-signed — choose <b>More info → Run anyway</b>. Reading the text
+        inside captures needs a one-click language pack, installed from Settings.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span>RecallOS — MIT licensed. Your data never leaves your machine.</span>
+    <span><a href="https://github.com/anshppatel4-crypto/recallos">GitHub</a> · <a href="https://github.com/anshppatel4-crypto/recallos/releases/latest">Releases</a> · <a href="https://github.com/anshppatel4-crypto/recallos/issues">Issues</a></span>
+  </div>
+</footer>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* =======================================================================
+   Hero: a drifting field of captured frames.
+
+   Each plane is a procedurally drawn "screenshot" — a window with a title
+   bar and text lines, in the app's own palette. Nothing real is shipped,
+   and the field reads immediately as "many moments of a screen, stacked
+   in time", which is the product in one image.
+   ======================================================================= */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const host = document.getElementById('scene');
+
+function frameTexture(seed){
+  const c = document.createElement('canvas');
+  c.width = 384; c.height = 240;
+  const g = c.getContext('2d');
+  let s = seed * 9301 + 49297;
+  const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+
+  g.fillStyle = '#0e1015'; g.fillRect(0,0,384,240);
+  g.fillStyle = '#14171e'; g.fillRect(0,0,384,26);
+  ['#f87171','#fbbf24','#34d399'].forEach((col,i)=>{
+    g.fillStyle = col; g.beginPath(); g.arc(16+i*15,13,4,0,7); g.fill();
+  });
+
+  // Accent block: a sidebar, a hero panel, or a code gutter.
+  const kind = Math.floor(rnd()*3);
+  g.fillStyle = 'rgba(99,102,241,.22)';
+  if(kind===0) g.fillRect(0,26,74,214);
+  else if(kind===1) g.fillRect(16,40,352,52);
+  else g.fillRect(0,26,26,214);
+
+  const x0 = kind===0 ? 92 : 20;
+  let y = kind===1 ? 108 : 46;
+  while(y < 226){
+    const w = 40 + rnd() * (360 - x0);
+    g.fillStyle = rnd() > .82 ? 'rgba(129,140,248,.72)' : `rgba(155,163,180,${.18 + rnd()*.34})`;
+    g.fillRect(x0, y, Math.min(w, 360-x0), 7);
+    y += 15;
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+let renderer, camera, scene, planes = [], raf = 0;
+
+function initScene(){
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x08090c, 0.052);
+
+  camera = new THREE.PerspectiveCamera(58, host.clientWidth/host.clientHeight, 0.1, 120);
+  camera.position.set(0,0,17);
+
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(host.clientWidth, host.clientHeight);
+  host.appendChild(renderer.domElement);
+
+  const COUNT = innerWidth < 760 ? 16 : 30;
+  const geo = new THREE.PlaneGeometry(4.1, 2.56);
+
+  for(let i=0;i<COUNT;i++){
+    const mat = new THREE.MeshBasicMaterial({
+      map: frameTexture(i+1), transparent:true, opacity:.96,
+      side: THREE.DoubleSide, depthWrite:false
+    });
+    const m = new THREE.Mesh(geo, mat);
+
+    // A loose helix so the field has depth without looking like a grid.
+    const a = i * 2.39, r = 5.2 + (i % 5) * 1.9;
+    m.position.set(Math.cos(a)*r, Math.sin(a)*r*0.56, -i*3.1);
+    m.rotation.set(-0.08 + Math.sin(i)*0.09, a*0.16, Math.sin(a)*0.05);
+    m.userData.spin = (Math.random()-.5)*0.0016;
+    scene.add(m); planes.push(m);
+  }
+
+  // A faint glow behind everything, so the planes read as lit rather than flat.
+  const glow = new THREE.Mesh(
+    new THREE.PlaneGeometry(90, 60),
+    new THREE.MeshBasicMaterial({ color:0x4f46e5, transparent:true, opacity:.055, depthWrite:false })
+  );
+  glow.position.z = -52;
+  scene.add(glow);
+}
+
+let mx=0, my=0, tx=0, ty=0;
+addEventListener('pointermove', e => {
+  tx = (e.clientX/innerWidth - .5);
+  ty = (e.clientY/innerHeight - .5);
+}, {passive:true});
+
+function tick(){
+  raf = requestAnimationFrame(tick);
+  mx += (tx-mx)*0.045; my += (ty-my)*0.045;
+
+  for(const m of planes){
+    m.position.z += 0.021;
+    m.rotation.z += m.userData.spin;
+    // Recycle to the back once a plane passes the camera: an endless field
+    // from a fixed, small number of meshes.
+    if(m.position.z > 15){ m.position.z -= 30*3.1; }
+  }
+  camera.position.x += (mx*3.1 - camera.position.x)*0.05;
+  camera.position.y += (-my*2.1 - camera.position.y)*0.05;
+  camera.lookAt(0,0,-14);
+  renderer.render(scene, camera);
+}
+
+function resize(){
+  if(!renderer) return;
+  camera.aspect = host.clientWidth/host.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(host.clientWidth, host.clientHeight);
+}
+addEventListener('resize', resize);
+
+try{
+  initScene();
+  if(reduced){ renderer.render(scene,camera); } else { tick(); }
+  // The hero is fixed behind the page; stop rendering once it scrolls away.
+  new IntersectionObserver(es=>{
+    const vis = es[0].isIntersecting;
+    if(vis && !raf && !reduced) tick();
+    else if(!vis && raf){ cancelAnimationFrame(raf); raf = 0; }
+  },{threshold:0}).observe(document.querySelector('header'));
+}catch(err){
+  // WebGL unavailable: the veil gradient alone still looks intentional.
+  console.warn('3D scene unavailable:', err);
+}
+</script>
+
+<script>
+/* ---------- Nav state + reveal ---------- */
+const nav = document.getElementById('nav');
+addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 12), {passive:true});
+
+const io = new IntersectionObserver(es => {
+  es.forEach((e,i) => { if(e.isIntersecting){ e.target.style.transitionDelay = `${Math.min(i*60,240)}ms`; e.target.classList.add('in'); io.unobserve(e.target);} });
+}, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
+
+/* ---------- Feature cards ---------- */
+const FEATURES = [
+  ['Continuous recording','Press Record and it keeps capturing until you press Pause — on an interval you choose, from every 2 seconds upward. A live countdown shows it is still working.','M12 7v5l3 2 M3 12a9 9 0 1 0 2.6-6.4 M3 4v5h5'],
+  ['Reads your screen','Tesseract OCR extracts the text with per-word geometry, on a background queue so capture never stalls waiting for recognition.','M4 7V4h16v3 M9 20h6 M12 4v16'],
+  ['Hybrid retrieval','BM25 keyword matching over SQLite FTS5, cosine similarity over chunk embeddings, and a normalised blend — because the two fail in opposite directions.','M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4.3-4.3'],
+  ['Replay any moment','Step frame by frame through time and see the original screenshot beside the text that was on it.','M4 5h16v11H4z M8 20h8 M10 9l5 2.5-5 2.5z'],
+  ['Activity timeline','A scrubable histogram of your day, coloured by what you were doing — reading, coding, writing, in a call.','M3 20h18 M6 16v-5 M11 16V6 M16 16v-8 M21 16v-3'],
+  ['Bounded by design','Age and size caps prune the oldest frames automatically, so it can never quietly fill the disk it runs on.','M5 8h14l-1 12H6L5 8z M9 8V5h6v3 M10 12v5 M14 12v5'],
+];
+document.getElementById('cards').innerHTML = FEATURES.map(([t,d,p]) => `
+  <div class="card rv">
+    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${p}"/></svg></div>
+    <h3>${t}</h3><p>${d}</p>
+  </div>`).join('');
+
+document.querySelectorAll('.card').forEach(c => {
+  c.addEventListener('pointermove', e => {
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', `${e.clientX-r.left}px`);
+    c.style.setProperty('--my', `${e.clientY-r.top}px`);
+  });
+});
+
+/* ---------- Privacy + numbers ---------- */
+const CHECK = 'M20 6L9 17l-5-5';
+document.getElementById('priv').innerHTML = [
+  ['Nothing is uploaded','No account, no sync, no telemetry. The only outbound request in the whole codebase downloads a language pack, and only when you press the button.'],
+  ['Exclusions are absolute','Name a process or a window-title phrase and it is checked before the screen is read, then again against the window that was actually in front. Those frames never touch the disk.'],
+  ['Off until you say so','Recording starts paused. It pauses again when you step away, and refuses to capture a locked session or a secure desktop.'],
+  ['Erase means erase','One button deletes every frame, its text, its index and its images, then reclaims the space. Or just delete the folder.'],
+].map(([t,d]) => `<div class="pv rv"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${CHECK}"/></svg><div><b>${t}</b><span>${d}</span></div></div>`).join('');
+
+document.getElementById('nums').innerHTML = [
+  ['135','tests passing'],['0','bytes uploaded'],['13k','lines of C#'],['MIT','licensed'],
+].map(([n,l]) => `<div class="num rv"><b>${n}</b><span>${l}</span></div>`).join('');
+
+/* =======================================================================
+   Search demo
+
+   A faithful mock of the real query language: bare words match text and
+   titles, "quoted" runs match as a phrase, and app: / title: / after:
+   narrow the set. Scoring is deliberately simple — the point is to show
+   the syntax and the result shape, not to reimplement BM25 in the browser.
+   ======================================================================= */
+const APPS = { chrome:'#8a93a6', code:'#5a9bf5', slack:'#e88b4c', figma:'#f06ea8', excel:'#e8c44c', terminal:'#4ec9b0' };
+const FRAMES = [
+  { t:'Quarterly revenue projections — Northwind.xlsx', app:'excel', intent:'Analyzing', ago:'12 min ago', days:0,
+    text:'Quarterly revenue projections for Northwind. Q3 total 1,284,000 up 14% year on year. Renewals ahead of forecast; churn down to 2.1%. Board review scheduled Thursday.' },
+  { t:'CapturePipeline.cs — RecallOS — Visual Studio Code', app:'code', intent:'Coding', ago:'38 min ago', days:0,
+    text:'public async Task<CaptureOutcome> CaptureAsync(CaptureRequest request) — the synchronous stage does only what makes the moment durable: capture, hash, write the file, insert the row, and return.' },
+  { t:'#deploys — Acme — Slack', app:'slack', intent:'Communicating', ago:'2 h ago', days:0,
+    text:'Deployment to staging failed on the migration step. Rolling back now. The Helsinki cluster is still on the previous release — do not merge anything until this is green.' },
+  { t:'Designing the timeline scrubber — Figma', app:'figma', intent:'Designing', ago:'yesterday 16:04', days:1,
+    text:'Timeline scrubber explorations. Log scale keeps quiet hours legible next to busy ones. Bar colour follows the dominant activity for that slice.' },
+  { t:'SQLite FTS5 — Full-Text Search Extension', app:'chrome', intent:'Reading', ago:'yesterday 11:20', days:1,
+    text:'External content FTS5 tables store only the inverted index and read column values back from the content table, which avoids storing the text twice. Triggers keep the index in step.' },
+  { t:'anshp@dev: ~/recallos — Windows Terminal', app:'terminal', intent:'Terminal', ago:'2 days ago', days:2,
+    text:'dotnet test — Passed! Failed: 0, Passed: 135, Skipped: 0, Total: 135, Duration: 29 s. Publishing self-contained win-x64 build to artifacts.' },
+  { t:'Invoice 4411 — Northwind Supplies', app:'chrome', intent:'Reading', ago:'3 days ago', days:3,
+    text:'Invoice 4411 issued to Northwind Supplies. Amount due 8,420.00 payable within 30 days. Purchase order 99-2231 referenced. Remittance to the account on file.' },
+  { t:'Pull request #218 — hybrid ranking — GitHub', app:'chrome', intent:'Browsing', ago:'4 days ago', days:4,
+    text:'Pull request 218: blend keyword and semantic scores after min-max normalising each, and add a small bonus where both signals agree. Reviewers requested a test for the empty-query path.' },
+];
+
+FRAMES.forEach((f,i) => f.seed = i+1);
+
+const q = document.getElementById('q'), res = document.getElementById('res'), stat = document.getElementById('stat');
+const CHIPS = ['invoice','"pull request"','revenue app:excel','deployment','app:code','after:yesterday'];
+document.getElementById('chips').innerHTML = CHIPS.map(c => `<span class="chip">${c.replace(/"/g,'&quot;')}</span>`).join('');
+
+function parse(raw){
+  const terms=[], apps=[], titles=[]; let days=null;
+  const re = /"([^"]+)"|(\S+)/g; let m;
+  while((m = re.exec(raw))){
+    const tok = m[1] ?? m[2];
+    if(m[1]){ terms.push(tok); continue; }
+    const c = tok.indexOf(':');
+    if(c > 0 && c < tok.length-1 && !/^https?$/i.test(tok.slice(0,c))){
+      const k = tok.slice(0,c).toLowerCase(), v = tok.slice(c+1).toLowerCase();
+      if(k==='app'||k==='process'){ apps.push(v); continue; }
+      if(k==='title'||k==='window'){ titles.push(v); continue; }
+      if(k==='after'||k==='since'){ days = v==='today'?0 : v==='yesterday'?1 : (parseInt(v)||7); continue; }
+    }
+    terms.push(tok);
+  }
+  return {terms,apps,titles,days};
+}
+
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const rx = t => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'ig');
+
+function snippet(text, terms){
+  let at = -1;
+  for(const t of terms){ const i = text.toLowerCase().indexOf(t.toLowerCase()); if(i>=0){ at=i; break; } }
+  let s = at < 0 ? text.slice(0,170) : text.slice(Math.max(0,at-52), Math.max(0,at-52)+186);
+  s = esc(s.trim());
+  if(at > 52) s = '…'+s;
+  for(const t of terms) if(t.length>1) s = s.replace(rx(t), x => `<mark>${x}</mark>`);
+  return s;
+}
+
+function thumb(seed, app){
+  const c = document.createElement('canvas');
+  c.width=208; c.height=124;
+  const g = c.getContext('2d');
+  let s = seed*7919; const rnd=()=>((s=(s*9301+49297)%233280)/233280);
+  g.fillStyle='#0e1015'; g.fillRect(0,0,208,124);
+  g.fillStyle='#14171e'; g.fillRect(0,0,208,15);
+  g.fillStyle=APPS[app]||'#6366f1'; g.fillRect(0,15,46,109);
+  let y=24;
+  while(y<118){ g.fillStyle=`rgba(155,163,180,${.16+rnd()*.32})`; g.fillRect(54, y, 40+rnd()*140, 4); y+=10; }
+  return c;
+}
+
+function run(){
+  const raw = q.value.trim();
+  const {terms,apps,titles,days} = parse(raw);
+
+  let hits = FRAMES.map(f=>{
+    const hay = (f.text+' '+f.t).toLowerCase();
+    let score = 0, ok = true;
+    for(const t of terms){ const n = (hay.match(rx(t))||[]).length; if(!n){ ok=false; break; } score += n + (f.t.toLowerCase().includes(t.toLowerCase())?3:0); }
+    if(ok && apps.length) ok = apps.includes(f.app);
+    if(ok && titles.length) ok = titles.every(t=>f.t.toLowerCase().includes(t));
+    if(ok && days!==null) ok = f.days <= days;
+    return ok ? {f, score} : null;
+  }).filter(Boolean);
+
+  if(!raw) hits = FRAMES.map(f=>({f,score:0}));
+  hits.sort((a,b)=>b.score-a.score);
+
+  const ms = (6 + Math.random()*9).toFixed(0);
+  stat.textContent = raw
+    ? `${hits.length} result${hits.length===1?'':'s'} in ${ms} ms`
+    : `${FRAMES.length} frames · showing everything`;
+
+  res.innerHTML = hits.length ? hits.map(({f},i)=>`
+    <div class="hit" style="animation-delay:${i*38}ms">
+      <div class="thumb" data-seed="${f.seed}" data-app="${f.app}"></div>
+      <div class="hit-main">
+        <div class="hit-t">${esc(f.t)}</div>
+        <div class="hit-m">
+          <span>${f.ago}</span>
+          <span class="badge" style="background:${APPS[f.app]}">${f.intent}</span>
+          <span>${f.app}</span>
+        </div>
+        <div class="snip">${snippet(f.text, terms)}</div>
+      </div>
+    </div>`).join('')
+    : `<div class="empty">No matches.<br/><span style="color:var(--text-2)">Try <code>invoice</code>, <code>app:code</code> or <code>"pull request"</code>.</span></div>`;
+
+  res.querySelectorAll('.thumb').forEach(el => el.appendChild(thumb(+el.dataset.seed, el.dataset.app)));
+}
+
+q.addEventListener('input', run);
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+  q.value = c.textContent; run(); q.focus();
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on');
+}));
+run();
+
+/* Typewriter hint on first view, so the demo shows what it can do unprompted. */
+const demoSection = document.getElementById('demo');
+let typed = false;
+new IntersectionObserver(es => {
+  if(!es[0].isIntersecting || typed) return;
+  typed = true;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const phrase = 'invoice';
+  let i = 0;
+  const t = setInterval(() => {
+    q.value = phrase.slice(0, ++i); run();
+    if(i >= phrase.length) clearInterval(t);
+  }, 105);
+}, {threshold:.35}).observe(demoSection);
+
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+// Belt and braces: whatever happens, nothing stays hidden for long.
+addEventListener('load', () => setTimeout(() => {
+  document.querySelectorAll('.rv:not(.in)').forEach(el => {
+    if (el.getBoundingClientRect().top < innerHeight) el.classList.add('in');
+  });
+}, 1200));
+</script>
+</body>
+</html>

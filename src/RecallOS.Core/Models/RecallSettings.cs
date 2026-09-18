@@ -10,16 +10,34 @@ public sealed class RecallSettings
     /// <summary>Run the background capture scheduler.</summary>
     public bool AutoCaptureEnabled { get; set; }
 
-    /// <summary>Seconds between automatic captures. Clamped to 2..3600 on load.</summary>
-    public int CaptureIntervalSeconds { get; set; } = 30;
+    /// <summary>
+    /// Seconds between automatic captures. Clamped to 2..3600 on load.
+    /// </summary>
+    /// <remarks>
+    /// Ten seconds, not thirty. At thirty a user who switches recording on and watches sees
+    /// a single frame and nothing else for half a minute, which reads as broken rather than
+    /// as working-but-patient. Ten is frequent enough that the timeline visibly fills while
+    /// you watch, and the retention caps still bound what it costs.
+    /// </remarks>
+    public int CaptureIntervalSeconds { get; set; } = 10;
 
     public CaptureTarget AutoCaptureTarget { get; set; } = CaptureTarget.AllScreens;
 
     /// <summary>Stop capturing after this many seconds without keyboard or mouse input.</summary>
     public int IdleThresholdSeconds { get; set; } = 120;
 
-    /// <summary>Drop automatic frames that look the same as the previous one.</summary>
-    public bool SkipUnchangedFrames { get; set; } = true;
+    /// <summary>
+    /// Drop automatic frames that look the same as the previous one.
+    /// </summary>
+    /// <remarks>
+    /// Off by default, because "Record" has to mean record. With it on, a screen that is
+    /// not changing much produces one frame and then nothing, which is indistinguishable
+    /// from the recorder being broken — and the user has no way to tell which it is.
+    /// Storage is bounded by the retention caps instead, which prune predictably by age and
+    /// size rather than silently refusing to record in the first place. It remains
+    /// available for anyone who would rather trade timeline continuity for disk.
+    /// </remarks>
+    public bool SkipUnchangedFrames { get; set; }
 
     /// <summary>
     /// Maximum Hamming distance between perceptual hashes still counted as "unchanged".
