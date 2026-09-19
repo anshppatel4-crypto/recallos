@@ -253,7 +253,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
       <a href="#privacy">Privacy</a>
       <a href="#roadmap">Roadmap</a>
       <a href="#faq">FAQ</a>
-      <a class="btn btn-primary" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">Download</a>
+      <a class="btn btn-primary" href="https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Setup.exe">Download</a>
     </div>
   </div>
 </nav>
@@ -270,7 +270,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
         searchable — by the words that were on screen, or just by what you meant.
       </p>
       <div class="cta">
-        <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">
+        <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Setup.exe">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
           Download for Windows
         </a>
@@ -280,7 +280,7 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
         </a>
       </div>
       <div class="meta">
-        <span><b>68 MB</b> · self-contained</span>
+        <span><b>One click</b> · no admin needed</span>
         <span><b>No</b> .NET install needed</span>
         <span><b>135</b> tests passing</span>
         <span><b>100%</b> local</span>
@@ -421,15 +421,18 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
       <h2>Start remembering.</h2>
       <p class="sub">Unzip it, run it. Nothing to install, no account, no sign-in.</p>
       <div class="cta" style="justify-content:center">
-        <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/latest">
+        <a class="btn btn-primary btn-lg" href="https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Setup.exe">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
           Download RecallOS 1.0
         </a>
       </div>
       <p class="note">
-        Windows 10 or 11 · 68 MB · Windows will warn about an unrecognised publisher because
-        the build is not code-signed — choose <b>More info → Run anyway</b>. The app walks you
-        through setup on first launch.
+        Windows 10 or 11 · 76 MB · Installs in seconds with no administrator rights, adds
+        Start Menu and Desktop shortcuts, and opens when it finishes. Windows will warn about
+        an unrecognised publisher because the installer is not code-signed — choose
+        <b>More info → Run anyway</b>. Prefer no installer?
+        <a href="https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Portable.zip"
+           style="color:var(--accent-bright)">Download the portable version</a>.
       </p>
     </div>
   </div>
@@ -744,7 +747,9 @@ document.getElementById('road').innerHTML = [
 document.getElementById('faqs').innerHTML = [
   ['Does anything I record leave my computer?','No. There is no account, no sync and no telemetry. The single outbound request in the entire application downloads an OCR language pack from the Tesseract project, and only when you press the Install button in Settings. Everything else — screenshots, extracted text, the search index — is written to %LOCALAPPDATA%\\RecallOS on your machine and read from there.'],
   ['How much disk does it use?','A frame is a few hundred kilobytes, so continuous recording is roughly a gigabyte a day at the default ten-second interval. Two caps keep that bounded: frames older than 30 days are removed, and the store is held under 20 GB by evicting the oldest first. Both limits are adjustable, and either can be switched off.'],
-  ['Why does Windows warn me when I run it?','The build is not code-signed, so SmartScreen shows an "unrecognised publisher" warning for any new application. Choose More info, then Run anyway. Code signing certificates are expensive for an independent release; this is the normal experience for one.'],
+  ['How do I install it?','Download RecallOS-Setup.exe and run it. It installs in a few seconds, needs no administrator rights, creates Start Menu and Desktop shortcuts, registers an uninstaller in Add or Remove Programs, and opens RecallOS when it finishes. There is nothing else to install — the .NET runtime is bundled. A portable version is also available if you would rather unzip a folder and run it.'],
+  ['Why does Windows warn me when I run it?','The installer is not code-signed, so SmartScreen shows an "unrecognised publisher" warning for any new application. Choose More info, then Run anyway. Code signing certificates are an ongoing expense for an independent release; this is the normal experience for one.'],
+  ['How do I uninstall it, and what happens to my recordings?','Settings, then Apps, then RecallOS, then Uninstall — like any other application. Your recordings are deliberately kept in a separate folder from the installed program, so uninstalling never touches them. Delete %LOCALAPPDATA%\RecallOS if you want them gone too.'],
   ['Why does search find nothing at first?','Reading the text inside your captures needs a Tesseract language pack, which is too large to bundle in the download. Install it in one click from Settings → Text extraction. Frames captured before then are not lost — they are held as pending, and become searchable retroactively the moment the pack arrives.'],
   ['Can I stop it recording particular apps?','Yes, and this is the control the design takes most seriously. Add a process name or a window-title phrase to the exclusion lists in Settings. Both are checked before the screen is read, and again against the window that was actually in front at the instant of capture, so an excluded window never reaches the disk.'],
   ['What happens when I close the window?','It keeps recording and moves to the notification area, so closing the window does not silently stop your history. The tray icon is always visible while it runs, and stopping it is one click from there. You can turn that behaviour off in Settings.'],

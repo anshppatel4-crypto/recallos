@@ -38,25 +38,34 @@ shows, placed on a timeline, and reachable by meaning as well as by wording.
 
 ## Download
 
-**[Download the latest release →](https://github.com/anshppatel4-crypto/recallos/releases/latest)**  ·  **[Website →](https://anshppatel4-crypto.github.io/recallos/docs/)**
+### **[⬇ Download RecallOS-Setup.exe](https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Setup.exe)**  ·  [Website](https://anshppatel4-crypto.github.io/recallos/docs/)
 
-Unzip it anywhere and run `RecallOS.exe`. Nothing to install — the build is self-contained,
-so you do **not** need the .NET runtime.
+Run it. That is the whole process — it installs in a few seconds, needs **no administrator
+rights**, adds Start Menu and Desktop shortcuts, registers an uninstaller in Add or Remove
+Programs, and opens RecallOS when it finishes. The .NET runtime is bundled, so there is
+nothing else to install.
 
-> Windows SmartScreen will warn about an unrecognised publisher, because the build is not
+> Windows will warn about an unrecognised publisher because the installer is not
 > code-signed. **More info → Run anyway.**
 
-### Turning on text search
+Prefer no installer? [RecallOS-Portable.zip](https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Portable.zip)
+is the same application as a folder you can unzip and run.
 
-Screen capture works immediately. Reading the text inside your captures needs a Tesseract
-language pack, which is too large to bundle, so RecallOS treats it as an opt-in asset:
+### First run
 
-> **Settings → Text extraction → Install language**
+RecallOS walks you through setup the first time it opens: what gets recorded, how to stop
+it, how to find things again, how to switch on text search, and how to exclude windows you
+never want captured. The Home screen then tracks what is still left to set up.
 
-That is the only time RecallOS uses the network, and only when you press the button. Until
-then frames are captured and stored as normal and held as `Pending`; the moment a language
-pack appears, the background sweep works through the whole backlog and it all becomes
-searchable retroactively.
+Reading the text inside your captures needs a language pack — one click from that
+checklist, about 4 MB. It is the only time RecallOS uses the network, and frames captured
+before you install it become searchable retroactively.
+
+### Uninstall
+
+Settings → Apps → RecallOS → Uninstall, like any other application. Your recordings live in
+`%LOCALAPPDATA%\RecallOS`, deliberately separate from the installed program, so uninstalling
+never touches them. Delete that folder if you want them gone too.
 
 ---
 

@@ -18,13 +18,25 @@
       display is blurred and the wrong size.
     -->
     <NoWarn>$(NoWarn);WFAC010</NoWarn>
+
+    <!-- Program.Main is the entry point, so WPF must not generate its own. -->
+    <StartupObject>RecallOS.App.Program</StartupObject>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Demoted from ApplicationDefinition so no second Main is generated. -->
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" SubType="Designer" Generator="MSBuild:Compile" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="$(MvvmVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(ExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(ExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(ExtensionsVersion)" />
+
+    <!-- Produces the one-click installer and handles its install/update hooks. -->
+    <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
