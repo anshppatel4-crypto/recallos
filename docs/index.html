@@ -220,6 +220,18 @@ details[open] summary::after{transform:rotate(45deg);color:var(--accent-bright)}
 summary:hover{color:var(--accent-bright)}
 details p{padding:0 0 22px 0;color:var(--text-2);font-size:14.5px;line-height:1.7;max-width:720px}
 
+/* ---------- Windows block notice ---------- */
+/* Prominent rather than a footnote: SmartScreen stops an unsigned installer for
+   every first-time user, and a warning they do not read is a broken download. */
+.blocked{margin-top:26px;border-radius:14px;padding:20px 22px;text-align:left;
+  border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.07);max-width:620px}
+.blocked.center{margin-inline:auto}
+.blocked b{display:flex;align-items:center;gap:10px;font-size:14.5px;margin-bottom:12px;color:var(--warning)}
+.blocked b svg{width:17px;height:17px;stroke:var(--warning);flex:none}
+.blocked ol{margin:0;padding-left:20px;color:var(--text-2);font-size:13.5px;line-height:1.85}
+.blocked ol strong{color:var(--text)}
+.blocked .alt{margin-top:12px;font-size:12.5px;color:var(--text-3);line-height:1.6}
+
 /* ---------- Download ---------- */
 .dl{text-align:center;padding:66px 32px;border-radius:22px;position:relative;overflow:hidden;
   border:1px solid var(--stroke-strong);
@@ -278,6 +290,23 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           Try the search
         </a>
+      </div>
+
+      <div class="blocked rv">
+        <b>
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          If Windows says it blocked the app
+        </b>
+        <ol>
+          <li>Click <strong>More info</strong> on the blue dialog — the button you need is hidden until you do.</li>
+          <li>Click <strong>Run anyway</strong>.</li>
+        </ol>
+        <div class="alt">
+          Or remove the block before opening it: right-click the downloaded file &rarr;
+          <strong>Properties</strong> &rarr; tick <strong>Unblock</strong> &rarr; <strong>OK</strong>.
+          This happens because the installer is not code-signed, not because anything is wrong with it —
+          Windows shows it for every new independent application.
+        </div>
       </div>
       <div class="meta">
         <span><b>One click</b> · no admin needed</span>
@@ -428,12 +457,27 @@ footer{border-top:1px solid var(--stroke);padding:44px 0;color:var(--text-3);fon
       </div>
       <p class="note">
         Windows 10 or 11 · 76 MB · Installs in seconds with no administrator rights, adds
-        Start Menu and Desktop shortcuts, and opens when it finishes. Windows will warn about
-        an unrecognised publisher because the installer is not code-signed — choose
-        <b>More info → Run anyway</b>. Prefer no installer?
+        Start Menu and Desktop shortcuts, and opens when it finishes. Prefer no installer?
         <a href="https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Portable.zip"
            style="color:var(--accent-bright)">Download the portable version</a>.
       </p>
+      <div class="blocked center rv">
+        <b>
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          If Windows says it blocked the app
+        </b>
+        <ol>
+          <li>Click <strong>More info</strong> on the blue dialog — the button you need is hidden until you do.</li>
+          <li>Click <strong>Run anyway</strong>.</li>
+        </ol>
+        <div class="alt">
+          Or remove the block before opening it: right-click the downloaded file &rarr;
+          <strong>Properties</strong> &rarr; tick <strong>Unblock</strong> &rarr; <strong>OK</strong>.
+          This happens because the installer is not code-signed, not because anything is wrong with it —
+          Windows shows it for every new independent application.
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

@@ -45,8 +45,19 @@ rights**, adds Start Menu and Desktop shortcuts, registers an uninstaller in Add
 Programs, and opens RecallOS when it finishes. The .NET runtime is bundled, so there is
 nothing else to install.
 
-> Windows will warn about an unrecognised publisher because the installer is not
-> code-signed. **More info → Run anyway.**
+### ⚠ If Windows says it blocked the app
+
+This will happen the first time, and it does **not** mean anything is wrong with the file.
+
+1. Click **More info** on the blue dialog — the button you need is hidden until you do
+2. Click **Run anyway**
+
+Or clear the block before opening it: right-click the downloaded file → **Properties** →
+tick **Unblock** → **OK**. From PowerShell: `Unblock-File ~\Downloads\RecallOS-Setup.exe`
+
+Windows stamps every downloaded file with a "mark of the web", and SmartScreen refuses
+unsigned installers it has not seen before. Code signing is what removes this, and it is an
+ongoing cost; every independent release without it behaves the same way.
 
 Prefer no installer? [RecallOS-Portable.zip](https://github.com/anshppatel4-crypto/recallos/releases/download/v1.0.0/RecallOS-Portable.zip)
 is the same application as a folder you can unzip and run.
